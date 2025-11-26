@@ -1,54 +1,26 @@
 import FloatInput from "../../../ui/inputs/FloatInput";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Button from "../../../ui/buttons/Button";
+import { useNavigate } from "react-router";
+
 const ResetPasswordPage = () => {
+    const navigate = useNavigate();
     const [password, setPassword] = useState('');
-    const [errorPassword, setErrorPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
-    const [hasError, setHasError] = useState(false);
-    const validatePassword = (password: string) => {
-        if (password.length === 0) {
-            return 'كلمة المرور عنصر مهم';
-        }
-        if (password.length < 8) {
-            return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
-        }
-        return '';
-    };
-    const validateConfirmPassword = (confirmPassword: string, password: string) => {
-        if (confirmPassword.length === 0) {
-            return 'تأكيد كلمة المرور عنصر مهم';
-        }
-        if (confirmPassword !== password) {
-            return 'كلمات المرور غير متطابقة';
-        }
-        return '';
-    };
+
     const handlePasswordChange = (value: string) => {
         setPassword(value);
-        setErrorPassword(validatePassword(value));
     };
+
     const handlePasswordConfirmChange = (value: string) => {
         setPasswordConfirm(value);
-        setErrorConfirmPassword(validateConfirmPassword(value, password));
     };
-    useEffect(() => {
-        const passwordError = validatePassword(password);
-        const confirmPasswordError = validateConfirmPassword(passwordConfirm, password);
-        setHasError(passwordError !== '' || confirmPasswordError !== '');
-    }, [password, passwordConfirm]);
+
     const handleResetPassword = () => {
-        const passwordError = validatePassword(password);
-        const confirmPasswordError = validateConfirmPassword(passwordConfirm, password);
-        setErrorPassword(passwordError);
-        setErrorConfirmPassword(confirmPasswordError);
-        if (passwordError === '' && confirmPasswordError === '') {
-            console.log('تم تعيين كلمة المرور الجديدة بنجاح');
-        } else {
-            console.log('يوجد أخطاء في النموذج');
-        }
+        console.log('تم تعيين كلمة المرور الجديدة بنجاح');
+        navigate('/dashboard/home');
     };
+
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <div className="p-3 w-full">
@@ -68,7 +40,7 @@ const ResetPasswordPage = () => {
                             setValue={handlePasswordChange}
                             value={password}
                             isPassword={true}
-                            error={errorPassword}
+                            error=""
                             type="text"
                             headText="كلمة المرور الجديدة"
                         />
@@ -77,7 +49,7 @@ const ResetPasswordPage = () => {
                             setValue={handlePasswordConfirmChange}
                             value={passwordConfirm}
                             isPassword={true}
-                            error={errorConfirmPassword}
+                            error=""
                             type="text"
                             headText="تأكيد كلمة المرور"
                         />
@@ -100,4 +72,5 @@ const ResetPasswordPage = () => {
         </div>
     );
 }
+
 export default ResetPasswordPage;

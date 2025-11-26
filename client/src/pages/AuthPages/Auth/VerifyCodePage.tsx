@@ -3,38 +3,36 @@ import Button from "../../../ui/buttons/Button";
 import VerificationInput from "../../../ui/inputs/VerificationInput";
 import { warningIcon } from "../../../constants/data";
 import Modal from "../../../ui/Modals/Modal";
+import { useNavigate } from "react-router";
+
 const VerifyCodePage = () => {
+    const navigate = useNavigate();
     const [code, setCode] = useState<string[]>(['', '', '', '', '']);
-    const [error, setError] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+
     const handleCodeChange = (value: string, index: number) => {
         const newCode = [...code];
         newCode[index] = value;
         setCode(newCode);
-        if (error) {
-            setError('');
-        }
+
         if (value && index < 4) {
             const nextInput = document.getElementById(`verification-input-${index + 1}`);
             if (nextInput) nextInput.focus();
         }
     };
+
     const handleVerify = () => {
-        const verificationCode = code.join('');
-        if (verificationCode.length !== 5) {
-            setError('الرجاء إدخال رمز التحقق المكون من 5 أرقام');
-            setIsSuccess(false);
-            setIsModalOpen(true);
-            return;
-        }
         setIsSuccess(true);
         setIsModalOpen(true);
-        console.log('Verification code:', verificationCode);
+        console.log('Verification code:', code.join(''));
     };
+
     const handleCloseModal = () => {
         setIsModalOpen(false);
+        navigate('/login');
     };
+
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <Modal
@@ -75,16 +73,10 @@ const VerifyCodePage = () => {
                                     id={`verification-input-${index}`}
                                     value={code[index]}
                                     onChange={(value) => handleCodeChange(value, index)}
-                                    hasError={!!error}
+                                    hasError={false}
                                 />
                             ))}
                         </div>
-                        {error && (
-                            <div className="flex items-center mt-2">
-                                <img src={warningIcon} className="w-4 h-4 ml-1" alt="Error" />
-                                <p className="text-red-600 text-sm">{error}</p>
-                            </div>
-                        )}
                     </div>
                     <div className="mt-auto w-full p-3">
                         <div className="flex flex-col items-center justify-center gap-y-5">
@@ -100,4 +92,5 @@ const VerifyCodePage = () => {
         </div>
     );
 };
+
 export default VerifyCodePage;

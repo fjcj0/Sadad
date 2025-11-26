@@ -1,45 +1,25 @@
 import FloatInput from "../../../ui/inputs/FloatInput";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Button from "../../../ui/buttons/Button";
+import { useNavigate } from "react-router";
+
 const ForgetPasswordPage = () => {
     const [mobilePhoneNumber, setMobilePhoneNumber] = useState('');
-    const [errorMobileNumber, setErrorMobileNumber] = useState('');
-    const [hasError, setHasError] = useState(false);
-    const validateMobileNumber = (number: string) => {
-        if (number.length === 0) {
-            return 'رقم الهاتف عنصر مهم';
-        }
-        if (number.length > 0 && !number.startsWith('+970') && !number.startsWith('+972')) {
-            return 'الرقم يجب ان يبدا ب+970 او +972';
-        }
-        return '';
-    };
+    const navigate = useNavigate();
+
     const handleMobileNumberChange = (value: string) => {
         setMobilePhoneNumber(value);
-        setErrorMobileNumber(validateMobileNumber(value));
     };
-    useEffect(() => {
-        const mobileError = validateMobileNumber(mobilePhoneNumber);
-        setHasError(mobileError !== '');
-    }, [mobilePhoneNumber]);
+
     const handleSendCode = async () => {
-        const mobileError = validateMobileNumber(mobilePhoneNumber);
-        setErrorMobileNumber(mobileError);
-        if (mobileError === '') {
-            console.log('تم إرسال الكود - جاهز للإرسال');
-        } else {
-            console.log('يوجد أخطاء في النموذج');
-        }
+        console.log('تم إرسال الكود - جاهز للإرسال');
+        navigate('/verify-code')
     };
+
     const handleResendCode = () => {
-        const mobileError = validateMobileNumber(mobilePhoneNumber);
-        setErrorMobileNumber(mobileError);
-        if (mobileError === '') {
-            console.log('إعادة إرسال كود التحقق');
-        } else {
-            console.log('يوجد أخطاء في النموذج');
-        }
+        console.log('إعادة إرسال كود التحقق');
     };
+
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <div className="p-3 w-full">
@@ -59,7 +39,7 @@ const ForgetPasswordPage = () => {
                             setValue={handleMobileNumberChange}
                             value={mobilePhoneNumber}
                             isPassword={false}
-                            error={errorMobileNumber}
+                            error=""
                             type="text"
                             headText="رقم الهاتف"
                         />
@@ -85,4 +65,5 @@ const ForgetPasswordPage = () => {
         </div>
     );
 }
+
 export default ForgetPasswordPage;

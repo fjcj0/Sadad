@@ -1,80 +1,33 @@
 import { Link, useNavigate } from "react-router-dom";
 import FloatInput from "../../../ui/inputs/FloatInput";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Button from "../../../ui/buttons/Button";
 import LineSperator from "../../../ui/Shapes/LineSperator";
 import TransparentButton from "../../../ui/buttons/TransparentButton";
+
 const CreateAccountPage = () => {
     const navigate = useNavigate();
     const [mobileNumber, setMobileNumber] = useState('');
-    const [errorMobileNumber, setErrorMobileNumber] = useState('');
     const [password, setPassword] = useState('');
-    const [errorPassword, setErrorPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [errorConfirmPassword, setErrorConfirmPassword] = useState('');
-    const [hasError, setHasError] = useState(false);
-    const validateMobileNumber = (number: string) => {
-        if (number.length === 0) {
-            return 'رقم الهاتف عنصر مهم';
-        }
-        if (number.length > 0 && !number.startsWith('+970') && !number.startsWith('+972')) {
-            return 'الرقم يجب ان يبدا ب+970 او +972';
-        }
-        return '';
-    };
-    const validatePassword = (pass: string) => {
-        if (pass.length === 0) {
-            return 'كلمة السر عنصر مهم';
-        }
-        if (pass.length > 0 && pass.length < 8) {
-            return 'كلمة السر يجب ان تحتوى على ثمان ارقام او اكثر';
-        }
-        return '';
-    };
-    const validateConfirmPassword = (confirmPass: string, originalPass: string) => {
-        if (confirmPass.length === 0) {
-            return 'تأكيد كلمة السر عنصر مهم';
-        }
-        if (confirmPass !== originalPass) {
-            return 'كلمة السر غير متطابقة';
-        }
-        return '';
-    };
+
     const handleMobileNumberChange = (value: string) => {
         setMobileNumber(value);
-        setErrorMobileNumber(validateMobileNumber(value));
     };
+
     const handlePasswordChange = (value: string) => {
         setPassword(value);
-        setErrorPassword(validatePassword(value));
-        if (passwordConfirm.length > 0) {
-            setErrorConfirmPassword(validateConfirmPassword(passwordConfirm, value));
-        }
     };
+
     const handlePasswordConfirmChange = (value: string) => {
         setPasswordConfirm(value);
-        setErrorConfirmPassword(validateConfirmPassword(value, password));
     };
-    useEffect(() => {
-        const mobileError = validateMobileNumber(mobileNumber);
-        const passwordError = validatePassword(password);
-        const confirmPasswordError = validateConfirmPassword(passwordConfirm, password);
-        setHasError(mobileError !== '' || passwordError !== '' || confirmPasswordError !== '');
-    }, [mobileNumber, password, passwordConfirm]);
+
     const handleCreateAccount = async () => {
-        const mobileError = validateMobileNumber(mobileNumber);
-        const passwordError = validatePassword(password);
-        const confirmPasswordError = validateConfirmPassword(passwordConfirm, password);
-        setErrorMobileNumber(mobileError);
-        setErrorPassword(passwordError);
-        setErrorConfirmPassword(confirmPasswordError);
-        if (mobileError === '' && passwordError === '' && confirmPasswordError === '') {
-            console.log('تم إنشاء الحساب - جاهز للإرسال');
-            navigate('/dashboard/home');
-        } else {
-            console.log('يوجد أخطاء في النموذج');
-        }
+        console.log('تم إنشاء الحساب - جاهز للإرسال');
+        navigate('/dashboard/home');
     };
+
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <div className="p-3 w-full">
@@ -96,7 +49,7 @@ const CreateAccountPage = () => {
                             setValue={handleMobileNumberChange}
                             value={mobileNumber}
                             isPassword={false}
-                            error={errorMobileNumber}
+                            error=""
                             type="text"
                             headText="رقم الهاتف"
                         />
@@ -105,7 +58,7 @@ const CreateAccountPage = () => {
                             setValue={handlePasswordChange}
                             value={password}
                             isPassword={true}
-                            error={errorPassword}
+                            error=""
                             type="password"
                             headText="كلمة السر"
                         />
@@ -114,7 +67,7 @@ const CreateAccountPage = () => {
                             setValue={handlePasswordConfirmChange}
                             value={passwordConfirm}
                             isPassword={true}
-                            error={errorConfirmPassword}
+                            error=""
                             type="password"
                             headText="تاكيد كلمة السر"
                         />
@@ -138,4 +91,5 @@ const CreateAccountPage = () => {
         </div>
     );
 }
+
 export default CreateAccountPage;

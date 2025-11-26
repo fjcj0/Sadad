@@ -1,59 +1,28 @@
 import { Link, useNavigate } from "react-router-dom";
 import FloatInput from "../../../ui/inputs/FloatInput";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Button from "../../../ui/buttons/Button";
 import LineSperator from "../../../ui/Shapes/LineSperator";
 import TransparentButton from "../../../ui/buttons/TransparentButton";
+
 const LoginPage = () => {
     const navigate = useNavigate();
     const [mobileNumber, setMobileNumber] = useState('');
-    const [errorMobileNumber, setErrorMobileNumber] = useState('');
     const [password, setPassword] = useState('');
-    const [errorPassword, setErrorPassword] = useState('');
-    const [hasError, setHasError] = useState(false);
-    const validateMobileNumber = (number: string) => {
-        if (number.length === 0) {
-            return 'رقم الهاتف عنصر مهم';
-        }
-        if (number.length > 0 && !number.startsWith('+970') && !number.startsWith('+972')) {
-            return 'الرقم يجب ان يبدا ب+970 او +972';
-        }
-        return '';
-    };
-    const validatePassword = (pass: string) => {
-        if (pass.length === 0) {
-            return 'كلمة السر عنصر مهم';
-        }
-        if (pass.length > 0 && pass.length < 8) {
-            return 'كلمة السر يجب ان تحتوى على ثمان ارقام او اكثر';
-        }
-        return '';
-    };
+
     const handleMobileNumberChange = (value: string) => {
         setMobileNumber(value);
-        setErrorMobileNumber(validateMobileNumber(value));
     };
+
     const handlePasswordChange = (value: string) => {
         setPassword(value);
-        setErrorPassword(validatePassword(value));
     };
-    useEffect(() => {
-        const mobileError = validateMobileNumber(mobileNumber);
-        const passwordError = validatePassword(password);
-        setHasError(mobileError !== '' || passwordError !== '');
-    }, [mobileNumber, password]);
+
     const handleLogin = async () => {
-        const mobileError = validateMobileNumber(mobileNumber);
-        const passwordError = validatePassword(password);
-        setErrorMobileNumber(mobileError);
-        setErrorPassword(passwordError);
-        if (mobileError === '' && passwordError === '') {
-            navigate('/dashboard/home');
-            console.log('Done - جاهز للإرسال');
-        } else {
-            console.log('يوجد أخطاء في النموذج');
-        }
+        navigate('/dashboard/home');
+        console.log('Done - جاهز للإرسال');
     };
+
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <div className="p-3 w-full">
@@ -75,7 +44,7 @@ const LoginPage = () => {
                             setValue={handleMobileNumberChange}
                             value={mobileNumber}
                             isPassword={false}
-                            error={errorMobileNumber}
+                            error=""
                             type="text"
                             headText="رقم الهاتف"
                         />
@@ -84,7 +53,7 @@ const LoginPage = () => {
                             setValue={handlePasswordChange}
                             value={password}
                             isPassword={true}
-                            error={errorPassword}
+                            error=""
                             type="password"
                             headText="كلمة السر"
                         />
@@ -109,4 +78,5 @@ const LoginPage = () => {
         </div>
     );
 }
+
 export default LoginPage;
