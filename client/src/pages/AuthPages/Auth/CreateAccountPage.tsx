@@ -4,6 +4,7 @@ import { useState } from "react";
 import Button from "../../../ui/buttons/Button";
 import LineSperator from "../../../ui/Shapes/LineSperator";
 import TransparentButton from "../../../ui/buttons/TransparentButton";
+import NavigateBack from "../../../ui/navigators/NavigateBack";
 
 const CreateAccountPage = () => {
     const navigate = useNavigate();
@@ -30,6 +31,7 @@ const CreateAccountPage = () => {
 
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
+            <NavigateBack />
             <div className="p-3 w-full">
                 <h1 className="font-bold text-3xl">ابدا مع <span className="text-blue-primary">اي-سداد</span></h1>
                 <p className="text-opacity mt-2 text-sm">انشئ حسابا وابدا بدفع فواتيرك بسهولة وبسرعة.</p>

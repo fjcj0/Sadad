@@ -4,6 +4,7 @@ import VerificationInput from "../../../ui/inputs/VerificationInput";
 import { warningIcon } from "../../../constants/data";
 import Modal from "../../../ui/Modals/Modal";
 import { useNavigate } from "react-router";
+import NavigateBack from "../../../ui/navigators/NavigateBack";
 
 const VerifyCodePage = () => {
     const navigate = useNavigate();
@@ -35,6 +36,7 @@ const VerifyCodePage = () => {
 
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
+            <NavigateBack />
             <Modal
                 image={isSuccess ? '/pictures/sucess.png' : '/pictures/fail.png'}
                 isOpen={isModalOpen}

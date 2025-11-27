@@ -2,6 +2,7 @@ import FloatInput from "../../../ui/inputs/FloatInput";
 import { useState } from "react";
 import Button from "../../../ui/buttons/Button";
 import { useNavigate } from "react-router";
+import NavigateBack from "../../../ui/navigators/NavigateBack";
 
 const ResetPasswordPage = () => {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ const ResetPasswordPage = () => {
 
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
+            <NavigateBack />
             <div className="p-3 w-full">
                 <h1 className="font-bold text-3xl">إعادة تعيين كلمة المرور</h1>
                 <p className="text-opacity mt-2 text-sm">ادخل كلمة المرور الجديدة لحسابك</p>

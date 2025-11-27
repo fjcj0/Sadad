@@ -1,5 +1,5 @@
 import LinkAi from "../../ui/links/LinkAi";
-
+import NavigateBack from "../../ui/navigators/NavigateBack";
 const AiCallPage = () => {
     return (
         <div className="w-full min-h-[85vh] flex flex-col items-center justify-center gap-5">
