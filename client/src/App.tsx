@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import SplashScreen from './tools/SplashScreen';
 import AdsPage from './pages/AuthPages/AdsPage';
 import LoginPage from './pages/AuthPages/Auth/LoginPage';
@@ -15,38 +15,110 @@ import AiPage from './pages/AiPages/AiPage';
 import AiCallPage from './pages/AiPages/AiCallPage';
 import ChatPage from './pages/AiPages/Chat/ChatPage';
 import BillPage from './pages/AiPages/BillPage';
-function App() {
-  const [isLoadingPage, setIsLoadingPage] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoadingPage(false);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
-  if (isLoadingPage) {
+import { useUserStore } from './store/authStore';
+import { Toaster } from 'react-hot-toast';
+const ProtectedUserRoute = ({ children }: { children: ReactNode }) => {
+  const { isVerified, isCheckingVerify } = useUserStore();
+  if (isCheckingVerify) {
     return <SplashScreen />;
   }
+  if (!isVerified) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+};
+const RedirectAuthnticatedUser = ({ children }: { children: ReactNode }) => {
+  const { isVerified, isCheckingVerify } = useUserStore();
+  if (isCheckingVerify) {
+    return <SplashScreen />;
+  }
+  if (isVerified) {
+    return <Navigate to="/dashboard/home" replace />;
+  }
+  return <>{children}</>;
+}
+function App() {
+  const { checkAuth } = useUserStore();
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
   return (
     <div className="w-screen min-h-[100vh] font-cairo">
+      <Toaster />
       <Routes>
         <Route path='/'>
           <Route index element={
-            <AdsPage />} />
-          <Route path='/login' element={<LoginPage />} />
-          <Route path='/create-account' element={<CreateAccountPage />} />
-          <Route path='/forget-password' element={<ForgetPasswordPage />} />
-          <Route path='/verify-code' element={<VerifyCodePage />} />
-          <Route path='/reset-password/:token' element={<ResetPasswordPage />} />
+            <RedirectAuthnticatedUser>
+              <AdsPage />
+            </RedirectAuthnticatedUser>
+          } />
+          <Route path='/login' element={
+            <RedirectAuthnticatedUser>
+              <LoginPage />
+            </RedirectAuthnticatedUser>
+          } />
+          <Route path='/create-account' element={
+            <RedirectAuthnticatedUser>
+              <CreateAccountPage />
+            </RedirectAuthnticatedUser>
+          } />
+          <Route path='/forget-password' element={
+            <RedirectAuthnticatedUser>
+              <ForgetPasswordPage />
+            </RedirectAuthnticatedUser>
+          } />
+          <Route path='/verify-code' element={
+            <RedirectAuthnticatedUser>
+              <VerifyCodePage />
+            </RedirectAuthnticatedUser>
+          } />
+          <Route path='/reset-password/:token' element={
+            <RedirectAuthnticatedUser>
+              <ResetPasswordPage />
+            </RedirectAuthnticatedUser>
+          } />
         </Route>
-        <Route path='/dashboard' element={<AiLayout />}>
-          <Route path='/dashboard/home' element={<CategoriesPage />} />
-          <Route path='/dashboard/scan' element={<ScanPage />} />
-          <Route path='/dashboard/companies' element={<CompaniesPage />} />
-          <Route path='/dashboard/ai' element={<AiPage />} />
-          <Route path='/dashboard/call' element={<AiCallPage />} />
-          <Route path='/dashboard/bill/:id' element={<BillPage />} />
+        <Route path='/dashboard' element={
+          <ProtectedUserRoute>
+            <AiLayout />
+          </ProtectedUserRoute>
+        }>
+          <Route path='/dashboard/home' element={
+            <ProtectedUserRoute>
+              <CategoriesPage />
+            </ProtectedUserRoute>
+          } />
+          <Route path='/dashboard/scan' element={
+            <ProtectedUserRoute>
+              <ScanPage />
+            </ProtectedUserRoute>
+          } />
+          <Route path='/dashboard/companies' element={
+            <ProtectedUserRoute>
+              <CompaniesPage />
+            </ProtectedUserRoute>
+          } />
+          <Route path='/dashboard/ai' element={
+            <ProtectedUserRoute>
+              <AiPage />
+            </ProtectedUserRoute>
+          } />
+          <Route path='/dashboard/call' element={
+            <ProtectedUserRoute>
+              <AiCallPage />
+            </ProtectedUserRoute>
+          } />
+          <Route path='/dashboard/bill/:id' element={
+            <ProtectedUserRoute>
+              <BillPage />
+            </ProtectedUserRoute>
+          } />
         </Route>
-        <Route path='/chat' element={<ChatPage />} />
+        <Route path='/chat' element={
+          <ProtectedUserRoute>
+            <ChatPage />
+          </ProtectedUserRoute>
+        } />
       </Routes>
     </div>
   );
