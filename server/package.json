@@ -3,17 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/server.js",
-"scripts": {
-  "dev": "nodemon src/server.js",          
-  "start": "node src/server.js",         
-  "db:pull": "npx prisma db pull",        
-  "db:push": "npx prisma db push",        
-  "migrate:dev": "npx prisma migrate dev --name init", 
-  "migrate:deploy": "npx prisma migrate deploy",     
-  "generate": "npx prisma generate",      
-  "studio": "npx prisma studio",
-  "remigrate": "npx prisma db push --force && npx prisma generate"
-},
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "migrate": "npx prisma migrate dev --name",
+    "generate": "npx prisma generate"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -25,7 +20,9 @@
   "dependencies": {
     "@google/genai": "^1.30.0",
     "@prisma/client": "^7.1.0",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "fs": "^0.0.1-security",

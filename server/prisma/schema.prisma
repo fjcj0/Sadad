@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
@@ -10,7 +10,6 @@ datasource db {
 model User {
   id                             Int       @id @default(autoincrement())
   phone                          String    @unique
-  name                           String
   password                       String
   verificationCode               String?
   verificationExpiresAt          DateTime?
@@ -18,4 +17,5 @@ model User {
   resetVerificationCodeExpiresAt DateTime?
   resendCode                     DateTime?
   isVerified                     Boolean   @default(false)
+  verificationTokenPageRest      String?
 }
