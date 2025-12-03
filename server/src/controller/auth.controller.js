@@ -1,6 +1,7 @@
 import prisma from '../config/PrismClinet.js';
 import bcryptjs from 'bcryptjs';
 import crypto from 'crypto';
+import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
 export const createAccount = async (request, response) => {
     try {
         const { phone, password, confirm_password } = request.body;
@@ -17,15 +18,19 @@ export const createAccount = async (request, response) => {
         const hashedPassword = await bcryptjs.hash(password, 10);
         const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
         const now = Date.now();
-        await prisma.user.create({
+        const created_user = await prisma.user.create({
             data: {
                 phone,
                 password: hashedPassword,
                 verificationCode,
                 verificationExpiresAt: new Date(now + 86400000),
                 resendCode: new Date(now + 90000)
+            },
+            select: {
+                id: true
             }
         });
+        generateTokenAndSetCookie(response, created_user.id);
         return response.status(201).json({
             success: true,
             message: "تم إنشاء الحساب بنجاح، يرجى التحقق من الرمز المرسل"
@@ -50,6 +55,7 @@ export const login = async (request, response) => {
         if (!user.isVerified) {
             return response.status(401).json({ success: false, message: "يرجى توثيق حسابك أولاً" });
         }
+        generateTokenAndSetCookie(response, user.id);
         const { password: _, ...userWithoutPassword } = user;
         return response.status(200).json({ success: true, user: userWithoutPassword });
     } catch (error) {
@@ -133,13 +139,17 @@ export const verifyCode = async (request, response) => {
                 success: true,
                 message: "تم التحقق بنجاح",
                 resetToken,
-                phone: user.phone
             });
         }
         user = await prisma.user.findFirst({
             where: {
                 verificationCode: code,
                 verificationExpiresAt: { gt: new Date() }
+            },
+            select: {
+                id: true,
+                isVerified: true,
+                phone: true,
             }
         });
         if (!user) {
@@ -153,12 +163,15 @@ export const verifyCode = async (request, response) => {
             data: {
                 isVerified: true,
                 verificationCode: null,
-                verificationExpiresAt: null
+                verificationExpiresAt: null,
+                resendCode: null,
             }
         });
+        generateTokenAndSetCookie(response, user.id);
         return response.status(200).json({
             success: true,
-            message: "تم التحقق بنجاح"
+            message: "تم التحقق بنجاح",
+            user
         });
     } catch (error) {
         return response.status(500).json({ success: false, error: error.message });
@@ -177,7 +190,7 @@ export const resendUserCode = async (request, response) => {
         if (!user)
             return response.status(400).json({ success: false, error: "لم يتم العثور على المستخدم" });
         const now = Date.now();
-        if (user.resendCode && now < user.resendCode) {
+        if (user.resendCode && now < new Date(user.resendCode).getTime()) {
             return response.status(400).json({
                 success: false,
                 error: "انتظر حتى ينتهي العداد"
