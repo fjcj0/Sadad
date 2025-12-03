@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id                             Int       @id @default(autoincrement())
+  phone                          String    @unique
+  name                           String
+  password                       String
+  verificationCode               String?
+  verificationExpiresAt          DateTime?
+  verificationResetCode          String?
+  resetVerificationCodeExpiresAt DateTime?
+  resendCode                     DateTime?
+  isVerified                     Boolean   @default(false)
+}
