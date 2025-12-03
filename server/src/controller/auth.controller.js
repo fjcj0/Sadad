@@ -200,7 +200,10 @@ export const verifyCode = async (request, response) => {
         return response.status(200).json({
             success: true,
             message: "تم التحقق بنجاح",
-            user
+            user: {
+                ...user,
+                isVerified: true
+            }
         });
     } catch (error) {
         return response.status(500).json({ success: false, error: error.message });
