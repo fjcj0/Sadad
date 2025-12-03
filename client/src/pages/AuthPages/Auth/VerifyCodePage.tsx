@@ -1,39 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../../ui/buttons/Button";
 import VerificationInput from "../../../ui/inputs/VerificationInput";
-import { warningIcon } from "../../../constants/data";
 import Modal from "../../../ui/Modals/Modal";
 import { useNavigate } from "react-router";
 import NavigateBack from "../../../ui/navigators/NavigateBack";
-
 const VerifyCodePage = () => {
     const navigate = useNavigate();
     const [code, setCode] = useState<string[]>(['', '', '', '', '']);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-
+    const [showError, setShowError] = useState(false);
+    const [resendTimer, setResendTimer] = useState(90);
+    useEffect(() => {
+        if (resendTimer <= 0) return;
+        const timer = setInterval(() => setResendTimer(prev => prev - 1), 1000);
+        return () => clearInterval(timer);
+    }, [resendTimer]);
     const handleCodeChange = (value: string, index: number) => {
         const newCode = [...code];
         newCode[index] = value;
         setCode(newCode);
-
         if (value && index < 4) {
             const nextInput = document.getElementById(`verification-input-${index + 1}`);
             if (nextInput) nextInput.focus();
         }
     };
-
     const handleVerify = () => {
-        setIsSuccess(true);
+        const codeValue = code.join('');
+        if (codeValue.length < 5) {
+            setShowError(true);
+            return;
+        }
+        const success = true;
+        setIsSuccess(success);
+        setShowError(!success);
         setIsModalOpen(true);
-        console.log('Verification code:', code.join(''));
+        console.log('Verification code:', codeValue);
     };
-
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        navigate('/login');
+        if (isSuccess) {
+            navigate('/login');
+        }
     };
-
+    const handleResend = () => {
+        console.log('إعادة إرسال كود التحقق');
+        setResendTimer(90);
+        setCode(['', '', '', '', '']);
+        setShowError(false);
+    };
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <NavigateBack />
@@ -42,12 +57,16 @@ const VerifyCodePage = () => {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 title={isSuccess ? 'تم تغيير كلمة المرور بنجاح' : 'لم نتمكن من تغيير كلمة المرور'}
-                paragraph={isSuccess ? 'لقد قمت بتحديث كلمة المرور الخاصة بك بنجاح. يمكنك الان استخدام الكلمة الجديدة لتسجيل الدخول الى حسابك' : 'يرجى التاكد من ادخال رمز التحقق الصحيح وكلمة المرور مطابقة للشروط. ثم المحاولة مرة اخرى'}
+                paragraph={isSuccess ?
+                    'لقد قمت بتحديث كلمة المرور الخاصة بك بنجاح. يمكنك الان استخدام الكلمة الجديدة لتسجيل الدخول الى حسابك' :
+                    'يرجى التاكد من ادخال رمز التحقق الصحيح وكلمة المرور مطابقة للشروط. ثم المحاولة مرة اخرى'}
                 isSuccess={isSuccess}
             />
             <div className="p-3 w-full">
                 <h1 className="font-bold text-3xl">رمز التحقق</h1>
-                <p className="text-opacity mt-2 text-sm">لقد ارسلنا رمز تحقق مكون من ٥ ارقام الى رقم هاتفك المسجل.</p>
+                <p className="text-opacity mt-2 text-sm">
+                    لقد ارسلنا رمز تحقق مكون من ٥ ارقام الى رقم هاتفك المسجل.
+                </p>
                 <div className="mt-3 bg-white h-[30rem] shadow-sm rounded-xl w-full flex flex-col">
                     <div className="w-full">
                         <div className="p-3">
@@ -56,26 +75,25 @@ const VerifyCodePage = () => {
                                 لم يصلك الرمز بعد{" "}
                                 <button
                                     type="button"
-                                    className="cursor-pointer text-blue-primary"
+                                    className={`cursor-pointer text-blue-primary ${resendTimer > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    onClick={handleResend}
+                                    disabled={resendTimer > 0}
                                 >
-                                    اعد الارسال بعد بعد 00:30 ثانية
+                                    {resendTimer > 0 ? `اعد الارسال بعد ${resendTimer} ثانية` : 'إعادة الإرسال'}
                                 </button>
                             </p>
                         </div>
                         <hr className="border-gray-400 border-t" />
                     </div>
                     <div className="flex flex-col items-center justify-center">
-                        <div
-                            dir="ltr"
-                            className="w-full flex items-center justify-center gap-3 p-3 mt-3"
-                        >
+                        <div dir="ltr" className="w-full flex items-center justify-center gap-3 p-3 mt-3">
                             {[0, 1, 2, 3, 4].map((index) => (
                                 <VerificationInput
                                     key={index}
                                     id={`verification-input-${index}`}
                                     value={code[index]}
                                     onChange={(value) => handleCodeChange(value, index)}
-                                    hasError={false}
+                                    hasError={showError}
                                 />
                             ))}
                         </div>
@@ -94,5 +112,4 @@ const VerifyCodePage = () => {
         </div>
     );
 };
-
 export default VerifyCodePage;

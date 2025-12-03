@@ -1,34 +1,64 @@
 import { Link, useNavigate } from "react-router-dom";
 import FloatInput from "../../../ui/inputs/FloatInput";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../../ui/buttons/Button";
 import LineSperator from "../../../ui/Shapes/LineSperator";
 import TransparentButton from "../../../ui/buttons/TransparentButton";
 import NavigateBack from "../../../ui/navigators/NavigateBack";
-
 const CreateAccountPage = () => {
     const navigate = useNavigate();
     const [mobileNumber, setMobileNumber] = useState('');
+    const [errorMobileNumber, setErrorMobileNumber] = useState('');
     const [password, setPassword] = useState('');
+    const [errorPassword, setErrorPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-
+    const [errorPasswordConfirm, setErrorPasswordConfirm] = useState('');
+    useEffect(() => {
+        if (mobileNumber.length === 0) {
+            setErrorMobileNumber('');
+        } else if (!/^05[69]\d{7}$/.test(mobileNumber)) {
+            setErrorMobileNumber('رقم الهاتف يجب أن يبدأ بـ 059 أو 056 ويحتوي على 10 أرقام');
+        } else {
+            setErrorMobileNumber('');
+        }
+    }, [mobileNumber]);
+    useEffect(() => {
+        if (password.length === 0) {
+            setErrorPassword('');
+        } else if (password.length < 8) {
+            setErrorPassword('كلمة السر يجب أن تكون ٨ حروف على الأقل');
+        } else {
+            setErrorPassword('');
+        }
+    }, [password]);
+    useEffect(() => {
+        if (passwordConfirm.length === 0) {
+            setErrorPasswordConfirm('');
+        } else if (passwordConfirm !== password) {
+            setErrorPasswordConfirm('كلمة السر غير مطابقة');
+        } else {
+            setErrorPasswordConfirm('');
+        }
+    }, [passwordConfirm, password]);
     const handleMobileNumberChange = (value: string) => {
         setMobileNumber(value);
     };
-
     const handlePasswordChange = (value: string) => {
         setPassword(value);
     };
-
     const handlePasswordConfirmChange = (value: string) => {
         setPasswordConfirm(value);
     };
-
     const handleCreateAccount = async () => {
-        console.log('تم إنشاء الحساب - جاهز للإرسال');
-        navigate('/dashboard/home');
+        if (errorMobileNumber || errorPassword || errorPasswordConfirm || !mobileNumber || !password || !passwordConfirm) {
+            return;
+        }
+        try {
+            navigate('/verify-code?isResetPassword=false');
+        } catch (error: unknown) {
+            console.log(error);
+        }
     };
-
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <NavigateBack />
@@ -51,7 +81,7 @@ const CreateAccountPage = () => {
                             setValue={handleMobileNumberChange}
                             value={mobileNumber}
                             isPassword={false}
-                            error=""
+                            error={errorMobileNumber}
                             type="text"
                             headText="رقم الهاتف"
                         />
@@ -60,7 +90,7 @@ const CreateAccountPage = () => {
                             setValue={handlePasswordChange}
                             value={password}
                             isPassword={true}
-                            error=""
+                            error={errorPassword}
                             type="password"
                             headText="كلمة السر"
                         />
@@ -69,7 +99,7 @@ const CreateAccountPage = () => {
                             setValue={handlePasswordConfirmChange}
                             value={passwordConfirm}
                             isPassword={true}
-                            error=""
+                            error={errorPasswordConfirm}
                             type="password"
                             headText="تاكيد كلمة السر"
                         />
@@ -93,5 +123,4 @@ const CreateAccountPage = () => {
         </div>
     );
 }
-
 export default CreateAccountPage;

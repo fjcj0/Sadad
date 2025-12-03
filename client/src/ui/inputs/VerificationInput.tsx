@@ -18,19 +18,17 @@ const VerificationInput = ({ id, value, onChange, hasError }: {
     };
     const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
         e.preventDefault();
-        const pastedData = e.clipboardData.getData('text');
-        const numbers = pastedData.replace(/\D/g, '');
-        if (numbers.length === 5) {
-            const inputs = document.querySelectorAll<HTMLInputElement>('[id^="verification-input-"]');
-            numbers.split('').forEach((num, index) => {
-                if (inputs[index] && /^\d$/.test(num)) {
-                    inputs[index].value = num;
-                    const event = new Event('input', { bubbles: true });
-                    inputs[index].dispatchEvent(event);
-                }
-            });
-            if (inputs[4]) inputs[4].focus();
-        }
+        const pastedData = e.clipboardData.getData('text').replace(/\D/g, '');
+        const inputs = document.querySelectorAll<HTMLInputElement>('[id^="verification-input-"]');
+        pastedData.split('').forEach((num, index) => {
+            if (inputs[index]) {
+                inputs[index].value = num;
+                const event = new Event('input', { bubbles: true });
+                inputs[index].dispatchEvent(event);
+            }
+        });
+        const focusIndex = Math.min(pastedData.length, 4);
+        if (inputs[focusIndex]) inputs[focusIndex].focus();
     };
     return (
         <input

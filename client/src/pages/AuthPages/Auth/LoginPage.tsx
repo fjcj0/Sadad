@@ -1,29 +1,46 @@
 import { Link, useNavigate } from "react-router-dom";
 import FloatInput from "../../../ui/inputs/FloatInput";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../../ui/buttons/Button";
 import LineSperator from "../../../ui/Shapes/LineSperator";
 import TransparentButton from "../../../ui/buttons/TransparentButton";
 import NavigateBack from "../../../ui/navigators/NavigateBack";
-
 const LoginPage = () => {
     const navigate = useNavigate();
     const [mobileNumber, setMobileNumber] = useState('');
     const [password, setPassword] = useState('');
-
+    const [errorMobileNumber, setErrorMobileNumber] = useState('');
+    const [errorPassword, setErrorPassword] = useState('');
+    useEffect(() => {
+        if (mobileNumber.length === 0) {
+            setErrorMobileNumber('');
+        } else if (!/^05[69]\d{7}$/.test(mobileNumber)) {
+            setErrorMobileNumber('رقم الهاتف يجب أن يبدأ بـ 059 أو 056 ويحتوي على 10 أرقام');
+        } else {
+            setErrorMobileNumber('');
+        }
+    }, [mobileNumber]);
+    useEffect(() => {
+        if (password.length === 0) {
+            setErrorPassword('');
+        } else if (password.length < 8) {
+            setErrorPassword('كلمة السر يجب أن تكون ٨ حروف على الأقل');
+        } else {
+            setErrorPassword('');
+        }
+    }, [password]);
     const handleMobileNumberChange = (value: string) => {
         setMobileNumber(value);
     };
-
     const handlePasswordChange = (value: string) => {
         setPassword(value);
     };
-
     const handleLogin = async () => {
-        navigate('/dashboard/home');
-        console.log('Done - جاهز للإرسال');
+        if (errorMobileNumber || errorPassword || !mobileNumber || !password) {
+            return;
+        }
+        navigate('/verify-code?isResetPassword=false');
     };
-
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <NavigateBack />
@@ -46,7 +63,7 @@ const LoginPage = () => {
                             setValue={handleMobileNumberChange}
                             value={mobileNumber}
                             isPassword={false}
-                            error=""
+                            error={errorMobileNumber}
                             type="text"
                             headText="رقم الهاتف"
                         />
@@ -55,7 +72,7 @@ const LoginPage = () => {
                             setValue={handlePasswordChange}
                             value={password}
                             isPassword={true}
-                            error=""
+                            error={errorPassword}
                             type="password"
                             headText="كلمة السر"
                         />
@@ -80,5 +97,4 @@ const LoginPage = () => {
         </div>
     );
 }
-
 export default LoginPage;

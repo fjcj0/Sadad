@@ -1,27 +1,45 @@
 import FloatInput from "../../../ui/inputs/FloatInput";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../../ui/buttons/Button";
 import { useNavigate } from "react-router";
 import NavigateBack from "../../../ui/navigators/NavigateBack";
-
 const ResetPasswordPage = () => {
     const navigate = useNavigate();
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-
+    const [errorPassword, setErrorPassword] = useState('');
+    const [errorPasswordConfirm, setErrorPasswordConfirm] = useState('');
+    useEffect(() => {
+        if (password.length === 0) {
+            setErrorPassword('');
+        } else if (password.length < 8) {
+            setErrorPassword('كلمة المرور يجب أن تكون ٨ أحرف على الأقل');
+        } else {
+            setErrorPassword('');
+        }
+    }, [password]);
+    useEffect(() => {
+        if (passwordConfirm.length === 0) {
+            setErrorPasswordConfirm('');
+        } else if (passwordConfirm !== password) {
+            setErrorPasswordConfirm('كلمة المرور غير مطابقة');
+        } else {
+            setErrorPasswordConfirm('');
+        }
+    }, [passwordConfirm, password]);
     const handlePasswordChange = (value: string) => {
         setPassword(value);
     };
-
     const handlePasswordConfirmChange = (value: string) => {
         setPasswordConfirm(value);
     };
-
     const handleResetPassword = () => {
+        if (errorPassword || errorPasswordConfirm || !password || !passwordConfirm) {
+            return;
+        }
         console.log('تم تعيين كلمة المرور الجديدة بنجاح');
         navigate('/dashboard/home');
     };
-
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <NavigateBack />
@@ -42,7 +60,7 @@ const ResetPasswordPage = () => {
                             setValue={handlePasswordChange}
                             value={password}
                             isPassword={true}
-                            error=""
+                            error={errorPassword}
                             type="text"
                             headText="كلمة المرور الجديدة"
                         />
@@ -51,7 +69,7 @@ const ResetPasswordPage = () => {
                             setValue={handlePasswordConfirmChange}
                             value={passwordConfirm}
                             isPassword={true}
-                            error=""
+                            error={errorPasswordConfirm}
                             type="text"
                             headText="تأكيد كلمة المرور"
                         />
@@ -74,5 +92,4 @@ const ResetPasswordPage = () => {
         </div>
     );
 }
-
 export default ResetPasswordPage;
