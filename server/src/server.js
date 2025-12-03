@@ -5,6 +5,7 @@ import cors from 'cors';
 import fs from 'fs';
 import { upload } from './lib/upload.js';
 import { TransbictAudio } from './config/TransbictAudio.js';
+import authRoute from './routes/auth.route.js';
 if (!fs.existsSync("uploads")) {
     fs.mkdirSync("uploads");
 }
@@ -50,4 +51,5 @@ app.post('/transbict-text', upload.single('audio'), async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 });
+app.use('/api/auth', authRoute);
 app.listen(process.env.PORT, () => console.log(`http://localhost:${process.env.PORT}`))

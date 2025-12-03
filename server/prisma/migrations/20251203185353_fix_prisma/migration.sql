@@ -9,6 +9,7 @@ CREATE TABLE `User` (
     `resetVerificationCodeExpiresAt` DATETIME(3) NULL,
     `resendCode` DATETIME(3) NULL,
     `isVerified` BOOLEAN NOT NULL DEFAULT false,
+    `verificationTokenPageRest` VARCHAR(191) NULL,
 
     UNIQUE INDEX `User_phone_key`(`phone`),
     PRIMARY KEY (`id`)

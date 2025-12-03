@@ -1,3 +1,11 @@
 import express from 'express';
+import { changePassword, checkAuth, createAccount, login, resendUserCode, sendVerficationCode } from '../controller/auth.controller.js';
+import { verifyToken } from '../middleware/VerifyToken.js';
 const router = express.Router();
+router.get('/check-auth', verifyToken, checkAuth);
+router.post('/create-account', createAccount);
+router.post('/login', login);
+router.post('/send-verification-code', sendVerficationCode);
+router.post('/resend-code', resendUserCode);
+router.post('/change-password', changePassword);
 export default router;

@@ -2,6 +2,35 @@ import prisma from '../config/PrismClinet.js';
 import bcryptjs from 'bcryptjs';
 import crypto from 'crypto';
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
+export const checkAuth = async (request, response) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: request.userId
+            },
+            select: {
+                isVerified: true,
+                id: true,
+                phone: true
+            }
+        });
+        if (!user || !user.isVerified) {
+            return response.status(404).json({
+                success: false,
+                error: `Unauthorized user`
+            });
+        }
+        return response.status(200).json({
+            success: true,
+            user
+        });
+    } catch (error) {
+        return response.status(500).json({
+            success: false,
+            error: `Internal Server Error: ${error instanceof Error ? error.message : error}`
+        });
+    }
+}
 export const createAccount = async (request, response) => {
     try {
         const { phone, password, confirm_password } = request.body;
