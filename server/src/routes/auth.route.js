@@ -1,5 +1,5 @@
 import express from 'express';
-import { changePassword, checkAuth, createAccount, login, resendUserCode, sendVerficationCode, verifyCode } from '../controller/auth.controller.js';
+import { changePassword, checkAuth, createAccount, login, logout, resendUserCode, sendVerficationCode, verifyCode } from '../controller/auth.controller.js';
 import { verifyToken } from '../middleware/VerifyToken.js';
 const router = express.Router();
 router.get('/check-auth', verifyToken, checkAuth);
@@ -9,4 +9,5 @@ router.post('/send-verification-code', sendVerficationCode);
 router.post('/resend-code', resendUserCode);
 router.post('/change-password', changePassword);
 router.post('/verify-code', verifyCode);
+router.post('/logout', verifyToken, logout);
 export default router;

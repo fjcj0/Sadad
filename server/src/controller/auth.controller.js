@@ -287,3 +287,7 @@ export const changePassword = async (request, response) => {
         return response.status(500).json({ success: false, error: error.message });
     }
 };
+export const logout = async (request, response) => {
+    response.clearCookie('token');
+    response.status(200).json({ success: true, message: "تم تسجيل الخروج بنجاح" });
+};
