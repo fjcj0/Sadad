@@ -37,6 +37,7 @@ const SendMessage = ({ message, setMessage, send, isLoading, setIsScan }: SendMe
         const res = await fetch('http://localhost:4500/transbict-text', {
             method: 'POST',
             body: formData,
+            credentials: 'include'
         });
         const data = await res.json();
         setMessage(data.text);

@@ -30,7 +30,7 @@ model User {
 model Message {
   id         Int      @id @default(autoincrement())
   role       Role
-  message    String
+  message    String   @db.Text
   created_at DateTime @default(now())
   userId     Int
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import jsQR, { type QRCode } from "jsqr";
+import { XIcon } from "lucide-react";
 const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -79,26 +80,26 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <div className="fixed inset-0 bg-black text-white flex flex-col z-200 items-center justify-center">
             <button
                 onClick={onClose}
-                className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-white text-black rounded-full text-xl font-bold z-50"
+                className="absolute cursor-pointer top-4 right-4 w-10 h-10 flex items-center justify-center bg-white text-black rounded-full text-xl font-bold z-50"
             >
-                ×
+                <XIcon />
             </button>
             <h1 className="text-2xl font-bold mb-6">QR Scanner</h1>
             <div className="relative w-full h-full max-w-[500px] max-h-[500px] rounded-2xl overflow-hidden border-4 border-white">
                 <video ref={videoRef} className="hidden" />
                 <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover" />
                 {scanning && (
-                    <div className="absolute top-0 left-0 w-full h-[2px] bg-green-400 animate-scan"></div>
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-blue-400 animate-scan"></div>
                 )}
-                <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-green-400" />
-                <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-green-400" />
-                <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-green-400" />
-                <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-green-400" />
+                <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-blue-400" />
+                <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-blue-400" />
+                <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-blue-400" />
+                <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-blue-400" />
             </div>
             <div className="mt-6">
                 <button
                     onClick={toggleCamera}
-                    className="px-6 py-2 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
+                    className="px-6 py-2 cursor-pointer bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
                 >
                     تبديل الكاميرا
                 </button>

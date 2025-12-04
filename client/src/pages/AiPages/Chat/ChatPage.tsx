@@ -7,7 +7,10 @@ import axios from 'axios';
 import SplashScreen from "../../../tools/SplashScreen";
 import { baseUrl } from "../../../utils/baseUrl";
 import ScanQR from "../../../components/ScanQR";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 axios.defaults.withCredentials = true;
+dayjs.extend(relativeTime);
 type ChatMessage = {
     role: 'user' | 'ai';
     message: string;
@@ -44,7 +47,7 @@ const ChatPage = () => {
     const sendMessage = async () => {
         if (!message.trim()) return;
         setIsLoading(true);
-        const timestamp = new Date().toLocaleString();
+        const timestamp = new Date().toISOString();
         const userMessage = message;
         try {
             setMessages(prev => [...prev, { role: 'user', message: userMessage, created_at: timestamp }]);
@@ -54,7 +57,10 @@ const ChatPage = () => {
             );
             setMessage('');
             const aiAnswer: string = response.data.answer;
-            setMessages(prev => [...prev, { role: 'ai', message: aiAnswer, created_at: new Date().toLocaleString() }]);
+            setMessages(prev => [
+                ...prev,
+                { role: 'ai', message: aiAnswer, created_at: new Date().toISOString() }
+            ]);
         } catch (error) {
             console.log(error);
         } finally {
@@ -75,7 +81,12 @@ const ChatPage = () => {
             </div>
             <div className="w-full h-[100vh] flex flex-col gap-5 overflow-auto px-5 pb-36 pt-24">
                 {messages.map((msg, index) => (
-                    <Message key={index} message={msg.message} role={msg.role} time={msg.created_at} />
+                    <Message
+                        key={index}
+                        message={msg.message}
+                        role={msg.role}
+                        time={dayjs(msg.created_at).fromNow()}
+                    />
                 ))}
                 {isLoading && (
                     <div role="status" className="self-end">
@@ -86,7 +97,13 @@ const ChatPage = () => {
                 )}
                 <div ref={messagesEndRef} />
             </div>
-            <SendMessage message={message} setMessage={setMessage} send={sendMessage} isLoading={isLoading} setIsScan={setIsScanQr} />
+            <SendMessage
+                message={message}
+                setMessage={setMessage}
+                send={sendMessage}
+                isLoading={isLoading}
+                setIsScan={setIsScanQr}
+            />
         </div>
     );
 };
