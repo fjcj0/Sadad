@@ -59,7 +59,12 @@ export const useUserStore = create<austhStoreInterface>((set, get) => ({
             if (axios.isAxiosError(error) && error.response?.status === 401) {
                 toast.error(error?.response?.data?.error);
                 return false;
-            } else {
+            }
+            else if (axios.isAxiosError(error) && error.response?.status === 400) {
+                set({ error: error?.response?.data?.error });
+                throw new Error(error?.response?.data?.error);
+            }
+            else {
                 error instanceof Error ? set({ error: error.message }) : set({ error: String(error) });
                 throw new Error(error instanceof Error ? error.message : String(error));
             }

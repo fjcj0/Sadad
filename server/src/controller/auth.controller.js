@@ -5,32 +5,17 @@ import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js
 export const checkAuth = async (request, response) => {
     try {
         const user = await prisma.user.findUnique({
-            where: {
-                id: request.userId
-            },
-            select: {
-                isVerified: true,
-                id: true,
-                phone: true
-            }
+            where: { id: request.userId },
+            select: { isVerified: true, id: true, phone: true }
         });
         if (!user || !user.isVerified) {
-            return response.status(404).json({
-                success: false,
-                error: `Unauthorized user`
-            });
+            return response.status(404).json({ success: false, error: `Unauthorized user` });
         }
-        return response.status(200).json({
-            success: true,
-            user
-        });
+        return response.status(200).json({ success: true, user });
     } catch (error) {
-        return response.status(500).json({
-            success: false,
-            error: `Internal Server Error: ${error instanceof Error ? error.message : error}`
-        });
+        return response.status(500).json({ success: false, error: `Internal Server Error: ${error instanceof Error ? error.message : error}` });
     }
-}
+};
 export const createAccount = async (request, response) => {
     try {
         const { phone, password, confirm_password } = request.body;
@@ -55,15 +40,10 @@ export const createAccount = async (request, response) => {
                 verificationExpiresAt: new Date(now + 86400000),
                 resendCode: new Date(now + 90000)
             },
-            select: {
-                id: true
-            }
+            select: { id: true }
         });
         generateTokenAndSetCookie(response, created_user.id);
-        return response.status(201).json({
-            success: true,
-            message: "تم إنشاء الحساب بنجاح، يرجى التحقق من الرمز المرسل"
-        });
+        return response.status(201).json({ success: true, message: "تم إنشاء الحساب بنجاح، يرجى التحقق من الرمز المرسل" });
     } catch (error) {
         return response.status(500).json({ success: false, error: error.message });
     }
@@ -81,9 +61,7 @@ export const login = async (request, response) => {
         if (!user) return response.status(400).json({ success: false, error: "رقم الهاتف غير موجود" });
         const isPasswordValid = await bcryptjs.compare(password, user.password);
         if (!isPasswordValid) return response.status(400).json({ success: false, error: "بيانات الدخول غير صحيحة" });
-        if (!user.isVerified) {
-            return response.status(401).json({ success: false, error: "يرجى توثيق حسابك أولاً" });
-        }
+        if (!user.isVerified) return response.status(401).json({ success: false, error: "يرجى توثيق حسابك أولاً" });
         generateTokenAndSetCookie(response, user.id);
         const { password: _, ...userWithoutPassword } = user;
         return response.status(200).json({ success: true, user: userWithoutPassword });
@@ -94,9 +72,7 @@ export const login = async (request, response) => {
 export const sendVerficationCode = async (request, response) => {
     try {
         const { phone, isResetPassword } = request.body;
-        if (!phone) {
-            return response.status(400).json({ success: false, error: "رقم الهاتف مطلوب" });
-        }
+        if (!phone) return response.status(400).json({ success: false, error: "رقم الهاتف مطلوب" });
         const user = await prisma.user.findUnique({ where: { phone } });
         if (!user) return response.status(400).json({ success: false, error: "لم يتم العثور على المستخدم" });
         const now = Date.now();
@@ -110,10 +86,7 @@ export const sendVerficationCode = async (request, response) => {
                     resendCode: new Date(now + 90000)
                 }
             });
-            return response.status(200).json({
-                success: true,
-                message: "تم إرسال رمز استعادة كلمة المرور"
-            });
+            return response.status(200).json({ success: true, message: "تم إرسال رمز استعادة كلمة المرور" });
         }
         await prisma.user.update({
             where: { phone },
@@ -123,10 +96,7 @@ export const sendVerficationCode = async (request, response) => {
                 resendCode: new Date(now + 90000)
             }
         });
-        return response.status(200).json({
-            success: true,
-            message: "تم إرسال رمز التحقق"
-        });
+        return response.status(200).json({ success: true, message: "تم إرسال رمز التحقق" });
     } catch (error) {
         return response.status(500).json({ success: false, error: error.message });
     }
@@ -134,77 +104,38 @@ export const sendVerficationCode = async (request, response) => {
 export const verifyCode = async (request, response) => {
     try {
         const { code, isResetPassword } = request.body;
-        if (!code || code.length !== 5) {
-            return response.status(400).json({
-                success: false,
-                error: "يجب أن يحتوي الرمز على 5 أرقام"
-            });
-        }
+        if (!code || code.length !== 5) return response.status(400).json({ success: false, error: "يجب أن يحتوي الرمز على 5 أرقام" });
         let user;
         if (isResetPassword) {
             user = await prisma.user.findFirst({
-                where: {
-                    verificationResetCode: code,
-                    resetVerificationCodeExpiresAt: { gt: new Date() }
-                }
+                where: { verificationResetCode: code, resetVerificationCodeExpiresAt: { gt: new Date() } }
             });
-            if (!user) {
-                return response.status(400).json({
-                    success: false,
-                    error: "الرمز غير صحيح أو انتهت صلاحيته"
-                });
-            }
+            if (!user) return response.status(400).json({ success: false, error: "الرمز غير صحيح أو انتهت صلاحيته" });
             const resetToken = crypto.randomBytes(32).toString("hex");
+            const expiresAt = new Date(Date.now() + 3600 * 1000);
             await prisma.user.update({
                 where: { id: user.id },
                 data: {
                     verificationResetCode: null,
                     resetVerificationCodeExpiresAt: null,
                     resendCode: null,
-                    verificationTokenPageRest: resetToken
+                    verificationTokenPageRest: resetToken,
+                    tokenPageExpiresAt: expiresAt
                 }
             });
-            return response.status(200).json({
-                success: true,
-                message: "تم التحقق بنجاح",
-                resetToken,
-            });
+            return response.status(200).json({ success: true, message: "تم التحقق بنجاح", resetToken });
         }
         user = await prisma.user.findFirst({
-            where: {
-                verificationCode: code,
-                verificationExpiresAt: { gt: new Date() }
-            },
-            select: {
-                id: true,
-                isVerified: true,
-                phone: true,
-            }
+            where: { verificationCode: code, verificationExpiresAt: { gt: new Date() } },
+            select: { id: true, isVerified: true, phone: true }
         });
-        if (!user) {
-            return response.status(400).json({
-                success: false,
-                error: "الرمز غير صحيح أو انتهت صلاحيته"
-            });
-        }
+        if (!user) return response.status(400).json({ success: false, error: "الرمز غير صحيح أو انتهت صلاحيته" });
         await prisma.user.update({
             where: { id: user.id },
-            data: {
-                isVerified: true,
-                verificationCode: null,
-                verificationExpiresAt: null,
-                resendCode: null,
-            }
+            data: { isVerified: true, verificationCode: null, verificationExpiresAt: null, resendCode: null }
         });
         generateTokenAndSetCookie(response, user.id);
-        return response.status(200).json({
-            success: true,
-            message: "تم التحقق بنجاح",
-            user: {
-                ...user,
-                isVerified: true
-            }
-        });
+        return response.status(200).json({ success: true, message: "تم التحقق بنجاح", user: { ...user, isVerified: true } });
     } catch (error) {
         return response.status(500).json({ success: false, error: error.message });
     }
@@ -212,46 +143,26 @@ export const verifyCode = async (request, response) => {
 export const resendUserCode = async (request, response) => {
     try {
         const { phone, isResetPassword } = request.body;
-        if (!phone)
-            return response.status(400).json({ success: false, error: "رقم الهاتف مطلوب" });
-
-        const user = await prisma.user.findUnique({
-            where: { phone },
-            select: { resendCode: true }
-        });
-        if (!user)
-            return response.status(400).json({ success: false, error: "لم يتم العثور على المستخدم" });
+        if (!phone) return response.status(400).json({ success: false, error: "رقم الهاتف مطلوب" });
+        const user = await prisma.user.findUnique({ where: { phone }, select: { resendCode: true } });
+        if (!user) return response.status(400).json({ success: false, error: "لم يتم العثور على المستخدم" });
         const now = Date.now();
         if (user.resendCode && now < new Date(user.resendCode).getTime()) {
-            return response.status(400).json({
-                success: false,
-                error: "انتظر حتى ينتهي العداد"
-            });
+            return response.status(400).json({ success: false, error: "انتظر حتى ينتهي العداد" });
         }
         const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
         if (isResetPassword) {
             await prisma.user.update({
                 where: { phone },
-                data: {
-                    verificationResetCode: verificationCode,
-                    resetVerificationCodeExpiresAt: new Date(now + 86400000),
-                    resendCode: new Date(now + 90000)
-                }
+                data: { verificationResetCode: verificationCode, resetVerificationCodeExpiresAt: new Date(now + 86400000), resendCode: new Date(now + 90000) }
             });
         } else {
             await prisma.user.update({
                 where: { phone },
-                data: {
-                    verificationCode,
-                    verificationExpiresAt: new Date(now + 86400000),
-                    resendCode: new Date(now + 90000)
-                }
+                data: { verificationCode, verificationExpiresAt: new Date(now + 86400000), resendCode: new Date(now + 90000) }
             });
         }
-        return response.status(200).json({
-            success: true,
-            message: "تم إرسال الرمز بنجاح"
-        });
+        return response.status(200).json({ success: true, message: "تم إرسال الرمز بنجاح" });
     } catch (error) {
         return response.status(500).json({ success: false, error: error.message });
     }
@@ -259,30 +170,17 @@ export const resendUserCode = async (request, response) => {
 export const changePassword = async (request, response) => {
     try {
         const { token, newPassword } = request.body;
-        if (!token || !newPassword) {
-            return response.status(400).json({ success: false, error: "جميع الحقول مطلوبة" });
-        }
+        if (!token || !newPassword) return response.status(400).json({ success: false, error: "جميع الحقول مطلوبة" });
         const user = await prisma.user.findFirst({
-            where: { verificationTokenPageRest: token }
+            where: { verificationTokenPageRest: token, tokenPageExpiresAt: { gt: new Date() } }
         });
-        if (!user) {
-            return response.status(400).json({
-                success: false,
-                error: "الرابط غير صالح أو منتهي"
-            });
-        }
+        if (!user) return response.status(400).json({ success: false, error: "الرابط غير صالح أو منتهي" });
         const hashed = await bcryptjs.hash(newPassword, 10);
         await prisma.user.update({
             where: { id: user.id },
-            data: {
-                password: hashed,
-                verificationTokenPageRest: null
-            }
+            data: { password: hashed, verificationTokenPageRest: null, tokenPageExpiresAt: null }
         });
-        return response.status(200).json({
-            success: true,
-            message: "تم تغيير كلمة السر بنجاح"
-        });
+        return response.status(200).json({ success: true, message: "تم تغيير كلمة السر بنجاح" });
     } catch (error) {
         return response.status(500).json({ success: false, error: error.message });
     }

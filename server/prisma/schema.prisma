@@ -18,4 +18,5 @@ model User {
   resendCode                     DateTime?
   isVerified                     Boolean   @default(false)
   verificationTokenPageRest      String?
+  tokenPageExpiresAt             DateTime?
 }
