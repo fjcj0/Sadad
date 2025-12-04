@@ -30,10 +30,13 @@ export const getMessages = async (request, response) => {
 };
 export const sendMessage = async (request, response) => {
     try {
+        const { question } = request.body || {};
+        if (!question) {
+            return response.status(400).json({ success: false, error: "Question is required" });
+        }
         if (!request.userId) {
             return response.status(405).json({ success: false, error: "Method not allowed" });
         }
-        const { question } = request.body;
         await prisma.message.create({
             data: {
                 role: "user",
@@ -65,16 +68,18 @@ export const sendMessage = async (request, response) => {
             await prisma.message.create({
                 data: { role: "ai", message: invoiceList, userId: request.userId },
             });
-            return response.status(200).json({ success: true, asnwer: `هذه جميع فواترك:\n${invoiceList}` });
+            return response.status(200).json({ success: true, answer: `هذه جميع فواترك:\n${invoiceList}` });
         }
         if (verifiedUser && detectedNumbers) {
             const invoiceNumber = detectedNumbers[0];
             const invoice = invoices.find(inv => inv.invoiceNumber === invoiceNumber && inv.username === verifiedUser.username);
+
             if (invoice) {
                 await prisma.message.create({
                     data: { role: "ai", message: `هل تريد رابط الفاتورة رقم ${invoiceNumber}?`, userId: request.userId },
                 });
-                return response.status(200).json({ success: true, asnwer: `هل تريد رابط الفاتورة رقم ${invoiceNumber}?` });
+
+                return response.status(200).json({ success: true, answer: `هل تريد رابط الفاتورة رقم ${invoiceNumber}?` });
             }
         }
         let systemPrompt = `
@@ -127,15 +132,15 @@ ${conversationHistory}
 ### الآن أجب عن:
 "${question}"
 `;
-        const asnwer = await AskAi(finalPrompt);
+        const answer = await AskAi(finalPrompt);
         await prisma.message.create({
             data: {
                 role: "ai",
-                message: asnwer,
+                message: answer,
                 userId: request.userId,
             },
         });
-        return response.status(200).json({ success: true, asnwer });
+        return response.status(200).json({ success: true, answer });
     } catch (error) {
         return response.status(500).json({
             success: false,

@@ -17,20 +17,22 @@ if (!fs.existsSync("uploads")) {
 const app = express();
 app.set('trust proxy', 1);
 app.use(cookieParser(process.env.COOKIE_SECRET));
-if (process.env.NODE_ENV !== 'development') job.start();
-app.use(express.json());
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
 }));
+app.use(express.json());
 app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(morgan('dev'));
-app.get(`/`, async (request, response) => {
-    return response.status(200).json({
+if (process.env.NODE_ENV !== 'development') {
+    job.start();
+}
+app.get('/', (req, res) => {
+    return res.status(200).json({
         success: true,
         message: 'Connected successfully'
     });
@@ -52,4 +54,5 @@ app.post('/transbict-text', verifyToken, upload.single('audio'), async (req, res
 });
 app.use('/api/auth', authRoute);
 app.use('/api/message', messageRoute);
-app.listen(process.env.PORT, () => console.log(`http://localhost:${process.env.PORT}`))
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
