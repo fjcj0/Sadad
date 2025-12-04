@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  user
+  ai
+}
+
 model User {
   id                             Int       @id @default(autoincrement())
   phone                          String    @unique
@@ -19,4 +24,14 @@ model User {
   isVerified                     Boolean   @default(false)
   verificationTokenPageRest      String?
   tokenPageExpiresAt             DateTime?
+  messages                       Message[]
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  role       Role
+  message    String
+  created_at DateTime @default(now())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
