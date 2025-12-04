@@ -89,12 +89,12 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <video ref={videoRef} className="hidden" />
                 <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover" />
                 {scanning && (
-                    <div className="absolute top-0 left-0 w-full h-[2px] bg-blue-400 animate-scan"></div>
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-green-400 animate-scan"></div>
                 )}
-                <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-blue-400" />
-                <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-blue-400" />
-                <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-blue-400" />
-                <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-blue-400" />
+                <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-green-400" />
+                <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-green-400" />
+                <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-green-400" />
+                <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-green-400" />
             </div>
             <div className="mt-6">
                 <button
