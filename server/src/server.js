@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-import { AskAi } from './utils/AskAi.js';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -9,7 +8,9 @@ import fs from 'fs';
 import { upload } from './lib/upload.js';
 import { TransbictAudio } from './config/TransbictAudio.js';
 import authRoute from './routes/auth.route.js';
+import messageRoute from './routes/message.route.js';
 import job from './config/Cron.js';
+import { verifyToken } from './middleware/VerifyToken.js';
 if (!fs.existsSync("uploads")) {
     fs.mkdirSync("uploads");
 }
@@ -34,25 +35,7 @@ app.get(`/`, async (request, response) => {
         message: 'Connected successfully'
     });
 });
-app.post('/ask/ai', async (request, response) => {
-    try {
-        const { question } = request.body;
-        if (!question) {
-            return response.status(400).json({
-                error: `Error you didn't ask ai anything`,
-                success: false
-            });
-        }
-        let answer = await AskAi(question);
-        return response.status(200).json(answer);
-    } catch (error) {
-        return response.status(500).json({
-            success: false,
-            error: `Fatal Internal Server Error: ${error instanceof Error ? error.message : error}`
-        });
-    }
-});
-app.post('/transbict-text', upload.single('audio'), async (req, res) => {
+app.post('/transbict-text', verifyToken, upload.single('audio'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No audio file received." });
@@ -68,4 +51,5 @@ app.post('/transbict-text', upload.single('audio'), async (req, res) => {
     }
 });
 app.use('/api/auth', authRoute);
+app.use('/api/message', messageRoute);
 app.listen(process.env.PORT, () => console.log(`http://localhost:${process.env.PORT}`))
