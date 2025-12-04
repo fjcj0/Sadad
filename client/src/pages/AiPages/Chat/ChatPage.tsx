@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
 import SplashScreen from "../../../tools/SplashScreen";
 import { baseUrl } from "../../../utils/baseUrl";
+import ScanQR from "../../../components/ScanQR";
 axios.defaults.withCredentials = true;
 type ChatMessage = {
     role: 'user' | 'ai';
@@ -19,6 +20,7 @@ const ChatPage = () => {
     const [isFetchingMessages, setIsFetchingMessages] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const [isScanQr, setIsScanQr] = useState(false);
     const handleMessages = async () => {
         setIsFetchingMessages(true);
         try {
@@ -60,6 +62,7 @@ const ChatPage = () => {
         }
     };
     if (isFetchingMessages) return <SplashScreen />;
+    if (isScanQr) return <ScanQR onClose={() => setIsScanQr(false)} />
     return (
         <div className="w-screen min-h-[100vh] flex flex-col items-start justify-start">
             <div className="fixed w-screen bg-white/50 backdrop-filter backdrop-blur-sm flex items-center h-[5rem] justify-end" dir="rtl">
@@ -83,7 +86,7 @@ const ChatPage = () => {
                 )}
                 <div ref={messagesEndRef} />
             </div>
-            <SendMessage message={message} setMessage={setMessage} send={sendMessage} isLoading={isLoading} />
+            <SendMessage message={message} setMessage={setMessage} send={sendMessage} isLoading={isLoading} setIsScan={setIsScanQr} />
         </div>
     );
 };

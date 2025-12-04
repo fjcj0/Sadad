@@ -6,8 +6,9 @@ type SendMessageProps = {
     setMessage: (value: string) => void;
     send: () => void;
     isLoading: boolean;
+    setIsScan: (value: boolean) => void;
 };
-const SendMessage = ({ message, setMessage, send, isLoading }: SendMessageProps) => {
+const SendMessage = ({ message, setMessage, send, isLoading, setIsScan }: SendMessageProps) => {
     const [isRecording, setIsRecording] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunks = useRef<Blob[]>([]);
@@ -90,6 +91,7 @@ const SendMessage = ({ message, setMessage, send, isLoading }: SendMessageProps)
                     )}
                 </div>
                 <button
+                    onClick={() => setIsScan(true)}
                     disabled={isLoading || isRecording}
                     type="button"
                     className={`cursor-pointer w-10 h-10 rounded-full items-center justify-center ${(isLoading || isRecording) && 'opacity-50'}`}

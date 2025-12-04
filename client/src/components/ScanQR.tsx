@@ -13,12 +13,14 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         const startCamera = async () => {
             try {
                 if (!videoRef.current) return;
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode },
+                });
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play();
                 setScanning(true);
                 rafId = requestAnimationFrame(tick);
-            } catch (err) {
+            } catch {
                 setError("فشل في تشغيل الكاميرا");
             }
         };
@@ -27,8 +29,22 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             if (rafId) cancelAnimationFrame(rafId);
             setScanning(false);
         };
+        const openLink = (url: string) => {
+            try {
+                const opened = window.open(url, "_system");
+                if (!opened) {
+                    window.location.href = url;
+                }
+            } catch {
+                window.location.href = url;
+            }
+        };
         const tick = () => {
-            if (!videoRef.current || !canvasRef.current || videoRef.current.readyState !== videoRef.current.HAVE_ENOUGH_DATA) {
+            if (
+                !videoRef.current ||
+                !canvasRef.current ||
+                videoRef.current.readyState !== videoRef.current.HAVE_ENOUGH_DATA
+            ) {
                 rafId = requestAnimationFrame(tick);
                 return;
             }
@@ -48,7 +64,7 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 setResult(code.data);
                 stopCamera();
                 if (code.data.startsWith("http://") || code.data.startsWith("https://")) {
-                    window.open(code.data, "_blank");
+                    openLink(code.data);
                     return;
                 }
             }
@@ -57,10 +73,10 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         startCamera();
         return () => stopCamera();
     }, [facingMode]);
-    const toggleCamera = () => setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
+    const toggleCamera = () =>
+        setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
     return (
         <div className="fixed inset-0 bg-black text-white flex flex-col z-200 items-center justify-center">
-            {/* زر الإغلاق */}
             <button
                 onClick={onClose}
                 className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-white text-black rounded-full text-xl font-bold z-50"
@@ -71,19 +87,26 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="relative w-full h-full max-w-[500px] max-h-[500px] rounded-2xl overflow-hidden border-4 border-white">
                 <video ref={videoRef} className="hidden" />
                 <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover" />
-                {scanning && <div className="absolute top-0 left-0 w-full h-[2px] bg-green-400 animate-scan"></div>}
+                {scanning && (
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-green-400 animate-scan"></div>
+                )}
                 <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-green-400" />
                 <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-green-400" />
                 <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-green-400" />
                 <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-green-400" />
             </div>
             <div className="mt-6">
-                <button onClick={toggleCamera} className="px-6 py-2 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition">
+                <button
+                    onClick={toggleCamera}
+                    className="px-6 py-2 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition"
+                >
                     تبديل الكاميرا
                 </button>
             </div>
             {result && (
-                <p className="mt-6 bg-white text-black px-4 py-2 rounded-md max-w-xs break-all text-center">{result}</p>
+                <p className="mt-6 bg-white text-black px-4 py-2 rounded-md max-w-xs break-all text-center">
+                    {result}
+                </p>
             )}
             {error && <p className="mt-4 text-red-500 font-semibold">{error}</p>}
             <style>{`
