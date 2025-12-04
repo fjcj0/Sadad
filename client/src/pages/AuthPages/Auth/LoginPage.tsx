@@ -5,7 +5,10 @@ import Button from "../../../ui/buttons/Button";
 import LineSperator from "../../../ui/Shapes/LineSperator";
 import TransparentButton from "../../../ui/buttons/TransparentButton";
 import NavigateBack from "../../../ui/navigators/NavigateBack";
+import { useUserStore } from "../../../store/authStore";
+import { warningIcon } from "../../../constants/data";
 const LoginPage = () => {
+    const { login, error, isLoading } = useUserStore();
     const navigate = useNavigate();
     const [mobileNumber, setMobileNumber] = useState('');
     const [password, setPassword] = useState('');
@@ -39,7 +42,15 @@ const LoginPage = () => {
         if (errorMobileNumber || errorPassword || !mobileNumber || !password) {
             return;
         }
-        navigate('/verify-code?isResetPassword=false');
+        let result;
+        try {
+            result = await login(mobileNumber, password);
+            if (result === false) {
+                navigate(`/verify-code?isResetPassword=false&phone=${mobileNumber}`);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     };
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
@@ -76,19 +87,26 @@ const LoginPage = () => {
                             type="password"
                             headText="كلمة السر"
                         />
-                        <Link to={'/forget-password'} className="text-blue-primary text-sm hover:underline duration-300 transition-all ease">نسيت كلمة السر</Link>
+                        <Link to={'/forget-password?isResetPassword=true'} className="text-blue-primary text-sm hover:underline duration-300 transition-all ease">نسيت كلمة السر</Link>
+                        {
+                            error &&
+                            <p className="text-red-500 flex items-center justify-center">
+                                <img src={warningIcon} alt="warning icon" className="w-4 h-4" />
+                                {error}
+                            </p>
+                        }
                     </div>
                     <div className="w-full flex items-center justify-center p-3 flex-col">
                         <Button
                             title="تسجيل الدخول"
                             onPress={handleLogin}
-                            isLoading={false}
+                            isLoading={isLoading}
                         />
                         <LineSperator />
                         <TransparentButton
                             icon="/icons/google.png"
                             title="المتابعة باستخدام كلمة المرور"
-                            isLoading={false}
+                            isLoading={isLoading}
                             onPress={() => console.log('Hello')}
                         />
                     </div>

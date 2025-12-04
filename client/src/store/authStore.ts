@@ -48,7 +48,10 @@ export const useUserStore = create<austhStoreInterface>((set, get) => ({
     login: async (phone: string, password: string): Promise<true | false | void> => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.post(`${baseUrl}/api/auth/login`);
+            const response = await axios.post(`${baseUrl}/api/auth/login`, {
+                phone,
+                password
+            });
             if (response.status === 200) {
                 set({ isVerified: true, user: response.data.user });
             }
@@ -67,10 +70,11 @@ export const useUserStore = create<austhStoreInterface>((set, get) => ({
     sendVerficationCode: async (phone: string, isResetPassword: boolean): Promise<void | boolean> => {
         set({ isLoading: true, error: null });
         try {
-            await axios.post(`${baseUrl}/api/auth/send-verification-code`, {
+            const response = await axios.post(`${baseUrl}/api/auth/send-verification-code`, {
                 phone,
                 isResetPassword
             });
+            toast.success(response.data.message);
             return true;
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 400) {
@@ -109,7 +113,7 @@ export const useUserStore = create<austhStoreInterface>((set, get) => ({
     resendUserCode: async (phone: string, isResetPassword: boolean) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.post(`${baseUrl}/api/auth/reset-code`, {
+            const response = await axios.post(`${baseUrl}/api/auth/resend-code`, {
                 phone,
                 isResetPassword
             });

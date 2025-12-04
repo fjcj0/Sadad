@@ -1,9 +1,15 @@
 import FloatInput from "../../../ui/inputs/FloatInput";
 import { useState, useEffect } from "react";
 import Button from "../../../ui/buttons/Button";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import NavigateBack from "../../../ui/navigators/NavigateBack";
+import { useUserStore } from "../../../store/authStore";
+import { warningIcon } from "../../../constants/data";
 const ForgetPasswordPage = () => {
+    const { error, isLoading, sendVerficationCode } = useUserStore();
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const isResetPassword: boolean = queryParams.get("isResetPassword") === "true";
     const [mobilePhoneNumber, setMobilePhoneNumber] = useState('');
     const [errorMobileNumber, setErrorMobileNumber] = useState('');
     const navigate = useNavigate();
@@ -24,13 +30,18 @@ const ForgetPasswordPage = () => {
             return;
         }
         try {
-            navigate('/verify-code?isResetPassword=true');
+            sendVerficationCode(mobilePhoneNumber, isResetPassword);
+            navigate(`/verify-code?isResetPassword=true&phone=${mobilePhoneNumber}`);
         } catch (error) {
             console.log(error);
         }
     };
     const handleResendCode = () => {
-        console.log('إعادة إرسال كود التحقق');
+        try {
+
+        } catch (error) {
+            console.log(error);
+        }
     };
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
@@ -56,13 +67,20 @@ const ForgetPasswordPage = () => {
                             type="text"
                             headText="رقم الهاتف"
                         />
+                        {
+                            error &&
+                            <p className="text-red-500 flex items-center justify-center">
+                                <img src={warningIcon} alt="warning icon" className="w-4 h-4" />
+                                {error}
+                            </p>
+                        }
                     </div>
                     <div className="mt-auto w-full p-3">
                         <div className="flex flex-col items-center justify-center gap-y-5">
                             <Button
                                 title="ارسال الكود"
                                 onPress={handleSendCode}
-                                isLoading={false}
+                                isLoading={isLoading}
                             />
                             <button
                                 type="button"

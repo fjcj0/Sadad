@@ -82,7 +82,7 @@ export const login = async (request, response) => {
         const isPasswordValid = await bcryptjs.compare(password, user.password);
         if (!isPasswordValid) return response.status(400).json({ success: false, error: "بيانات الدخول غير صحيحة" });
         if (!user.isVerified) {
-            return response.status(401).json({ success: false, message: "يرجى توثيق حسابك أولاً" });
+            return response.status(401).json({ success: false, error: "يرجى توثيق حسابك أولاً" });
         }
         generateTokenAndSetCookie(response, user.id);
         const { password: _, ...userWithoutPassword } = user;

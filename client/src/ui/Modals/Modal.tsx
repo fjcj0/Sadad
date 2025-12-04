@@ -34,6 +34,7 @@ const Modal = ({
             document.body.classList.remove('overflow-hidden');
         };
     }, [isOpen, onClose, closeOnEscape]);
+
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (closeOnBackdropClick && e.target === e.currentTarget) {
             onClose();
@@ -45,14 +46,14 @@ const Modal = ({
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             onClick={handleBackdropClick}
         >
-            <div className={`absolute inset-0 bg-white/50 backdrop-filter backdrop-blur-sm`} />
+            <div className="absolute inset-0 bg-white/50 backdrop-filter backdrop-blur-sm" />
             <div className="relative bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-auto transform transition-all duration-300">
                 <div className='w-full flex flex-col gap-5 items-center justify-center p-6'>
                     <img src={image} alt="Modal status" />
                     <h1 className="text-xl font-bold">{title}</h1>
                     <p className='text-black/50 text-center'>{paragraph}</p>
                     <Button
-                        title={isSuccess ? 'الرجوع لتسجيل الدخول' : 'اعادة تعيين'}
+                        title={isSuccess ? 'الرجوع لتسجيل الدخول' : 'اعادة المحاولة'}
                         onPress={onClose}
                         isLoading={false}
                     />

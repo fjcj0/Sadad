@@ -5,7 +5,10 @@ import Button from "../../../ui/buttons/Button";
 import LineSperator from "../../../ui/Shapes/LineSperator";
 import TransparentButton from "../../../ui/buttons/TransparentButton";
 import NavigateBack from "../../../ui/navigators/NavigateBack";
+import { useUserStore } from "../../../store/authStore";
+import { warningIcon } from "../../../constants/data";
 const CreateAccountPage = () => {
+    const { error, create_account, isLoading } = useUserStore();
     const navigate = useNavigate();
     const [mobileNumber, setMobileNumber] = useState('');
     const [errorMobileNumber, setErrorMobileNumber] = useState('');
@@ -54,7 +57,8 @@ const CreateAccountPage = () => {
             return;
         }
         try {
-            navigate('/verify-code?isResetPassword=false');
+            await create_account(mobileNumber, password, passwordConfirm);
+            navigate(`/verify-code?isResetPassword=false&phone=${mobileNumber}`);
         } catch (error: unknown) {
             console.log(error);
         }
@@ -103,18 +107,25 @@ const CreateAccountPage = () => {
                             type="password"
                             headText="تاكيد كلمة السر"
                         />
+                        {
+                            error &&
+                            <p className="text-red-500 flex items-center justify-center">
+                                <img src={warningIcon} alt="warning icon" className="w-4 h-4" />
+                                {error}
+                            </p>
+                        }
                     </div>
                     <div className="w-full flex items-center justify-center p-3 flex-col">
                         <Button
                             title="انشاء الحساب"
                             onPress={handleCreateAccount}
-                            isLoading={false}
+                            isLoading={isLoading}
                         />
                         <LineSperator />
                         <TransparentButton
                             icon="/icons/google.png"
                             title="المتابعة باستخدام كلمة المرور"
-                            isLoading={false}
+                            isLoading={isLoading}
                             onPress={() => console.log('Hello')}
                         />
                     </div>

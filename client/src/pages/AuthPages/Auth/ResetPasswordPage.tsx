@@ -1,51 +1,79 @@
 import FloatInput from "../../../ui/inputs/FloatInput";
 import { useState, useEffect } from "react";
 import Button from "../../../ui/buttons/Button";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router-dom";
 import NavigateBack from "../../../ui/navigators/NavigateBack";
+import { useUserStore } from "../../../store/authStore";
+import Modal from "../../../ui/Modals/Modal";
 const ResetPasswordPage = () => {
+    const { token } = useParams();
+    const { changePassword, isLoading } = useUserStore();
     const navigate = useNavigate();
-    const [password, setPassword] = useState('');
-    const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [errorPassword, setErrorPassword] = useState('');
-    const [errorPasswordConfirm, setErrorPasswordConfirm] = useState('');
+    const [password, setPassword] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
+    const [errorPassword, setErrorPassword] = useState("");
+    const [errorPasswordConfirm, setErrorPasswordConfirm] = useState("");
+    const [isSuccess, setIsSuccess] = useState<boolean>(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     useEffect(() => {
-        if (password.length === 0) {
-            setErrorPassword('');
+        if (!password) {
+            setErrorPassword("");
         } else if (password.length < 8) {
-            setErrorPassword('كلمة المرور يجب أن تكون ٨ أحرف على الأقل');
+            setErrorPassword("كلمة المرور يجب أن تكون ٨ أحرف على الأقل");
         } else {
-            setErrorPassword('');
+            setErrorPassword("");
         }
     }, [password]);
     useEffect(() => {
-        if (passwordConfirm.length === 0) {
-            setErrorPasswordConfirm('');
+        if (!passwordConfirm) {
+            setErrorPasswordConfirm("");
         } else if (passwordConfirm !== password) {
-            setErrorPasswordConfirm('كلمة المرور غير مطابقة');
+            setErrorPasswordConfirm("كلمة المرور غير مطابقة");
         } else {
-            setErrorPasswordConfirm('');
+            setErrorPasswordConfirm("");
         }
     }, [passwordConfirm, password]);
-    const handlePasswordChange = (value: string) => {
-        setPassword(value);
-    };
-    const handlePasswordConfirmChange = (value: string) => {
-        setPasswordConfirm(value);
-    };
-    const handleResetPassword = () => {
+    const handleResetPassword = async () => {
         if (errorPassword || errorPasswordConfirm || !password || !passwordConfirm) {
             return;
         }
-        console.log('تم تعيين كلمة المرور الجديدة بنجاح');
-        navigate('/dashboard/home');
+        try {
+            await changePassword(token || "", password);
+            setIsSuccess(true);
+            setIsOpen(true);
+        } catch (error) {
+            setIsSuccess(false);
+            setIsOpen(true);
+        }
+    };
+    const handleOnClose = () => {
+        setIsOpen(false);
+        if (isSuccess) {
+            navigate("/login");
+        } else {
+            navigate("/forget-password");
+        }
     };
     return (
         <div className="flex max-w-xl min-h-[100vh] mx-auto items-start justify-center flex-col">
             <NavigateBack />
+            <Modal
+                isOpen={isOpen}
+                onClose={handleOnClose}
+                isSuccess={isSuccess}
+                image={isSuccess ? "/pictures/sucess.png" : "/pictures/fail.png"}
+                title={isSuccess ? "تم تغيير كلمة المرور" : "فشل تغيير كلمة المرور"}
+                paragraph={
+                    isSuccess
+                        ? "يمكنك الرجوع لتسجيل الدخول وكتابة كلمة المرور الجديدة"
+                        : "ارجع لشاشة إرسال رمز سري وأعد المحاولة"
+                }
+            />
             <div className="p-3 w-full">
                 <h1 className="font-bold text-3xl">إعادة تعيين كلمة المرور</h1>
-                <p className="text-opacity mt-2 text-sm">ادخل كلمة المرور الجديدة لحسابك</p>
+                <p className="text-opacity mt-2 text-sm">
+                    ادخل كلمة المرور الجديدة لحسابك
+                </p>
                 <div className="mt-3 bg-white h-[30rem] shadow-sm rounded-xl w-full flex flex-col">
                     <div className="w-full">
                         <div className="p-3">
@@ -57,7 +85,7 @@ const ResetPasswordPage = () => {
                     <div className="w-full flex flex-col items-start justify-start gap-1 p-3 mt-3">
                         <FloatInput
                             label="ادخل كلمة المرور الجديدة"
-                            setValue={handlePasswordChange}
+                            setValue={setPassword}
                             value={password}
                             isPassword={true}
                             error={errorPassword}
@@ -66,7 +94,7 @@ const ResetPasswordPage = () => {
                         />
                         <FloatInput
                             label="تأكيد كلمة المرور الجديدة"
-                            setValue={handlePasswordConfirmChange}
+                            setValue={setPasswordConfirm}
                             value={passwordConfirm}
                             isPassword={true}
                             error={errorPasswordConfirm}
@@ -83,7 +111,7 @@ const ResetPasswordPage = () => {
                             <Button
                                 title="تعيين كلمة المرور الجديدة"
                                 onPress={handleResetPassword}
-                                isLoading={false}
+                                isLoading={isLoading}
                             />
                         </div>
                     </div>
@@ -91,5 +119,5 @@ const ResetPasswordPage = () => {
             </div>
         </div>
     );
-}
+};
 export default ResetPasswordPage;
