@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import jsQR, { type QRCode } from "jsqr";
 import { XIcon } from "lucide-react";
+
 const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -8,45 +9,56 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const [error, setError] = useState<string | null>(null);
     const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
     const [scanning, setScanning] = useState<boolean>(false);
-    const isMobile = /android|iphone|ipad|ipod|windows phone/i.test(
-        navigator.userAgent
-    );
+    const isMobile = /android|iphone|ipad|ipod|windows phone/i.test(navigator.userAgent);
+
     useEffect(() => {
         let rafId: number;
         let stream: MediaStream | null = null;
+
         const startCamera = async () => {
             try {
                 if (!videoRef.current) return;
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode },
-                });
+
+                try {
+                    // استخدام ideal لتجنب مشاكل بعض الأجهزة
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: { ideal: facingMode } },
+                    });
+                } catch {
+                    // fallback لكاميرا افتراضية
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
+
+                if (!videoRef.current) return;
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play();
                 setScanning(true);
                 rafId = requestAnimationFrame(tick);
-            } catch {
-                setError("فشل في تشغيل الكاميرا");
+            } catch (err) {
+                console.error(err);
+                setError("فشل في تشغيل الكاميرا. تأكد من السماح بالوصول أو استخدام HTTPS");
             }
         };
+
         const stopCamera = () => {
             if (stream) stream.getTracks().forEach((track) => track.stop());
             if (rafId) cancelAnimationFrame(rafId);
             setScanning(false);
         };
+
         const openLink = (url: string) => {
             try {
                 if (isMobile) {
                     window.location.href = url;
                 } else {
                     const opened = window.open(url, "_blank");
-                    if (!opened) {
-                        window.location.href = url;
-                    }
+                    if (!opened) window.location.href = url;
                 }
             } catch {
                 window.location.href = url;
             }
         };
+
         const tick = () => {
             if (
                 !videoRef.current ||
@@ -60,30 +72,37 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             const canvas = canvasRef.current;
             const ctx = canvas.getContext("2d");
             if (!ctx) return;
+
             const size = Math.min(window.innerWidth, window.innerHeight);
             canvas.width = size;
             canvas.height = size;
+
             const sx = (video.videoWidth - size) / 2;
             const sy = (video.videoHeight - size) / 2;
             ctx.drawImage(video, sx, sy, size, size, 0, 0, size, size);
+
             const imageData = ctx.getImageData(0, 0, size, size);
             const code: QRCode | null = jsQR(imageData.data, size, size);
+
             if (code) {
                 setResult(code.data);
                 stopCamera();
-
                 if (code.data.startsWith("http://") || code.data.startsWith("https://")) {
                     openLink(code.data);
                     return;
                 }
             }
+
             rafId = requestAnimationFrame(tick);
         };
+
         startCamera();
         return () => stopCamera();
     }, [facingMode, isMobile]);
+
     const toggleCamera = () =>
         setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
+
     return (
         <div className="fixed inset-0 bg-black text-white flex flex-col z-200 items-center justify-center">
             <button
@@ -94,7 +113,12 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </button>
             <h1 className="text-2xl font-bold mb-6">QR Scanner</h1>
             <div className="relative w-full h-full max-w-[500px] max-h-[500px] rounded-2xl overflow-hidden border-4 border-white">
-                <video ref={videoRef} className="hidden" />
+                {/* جعل الفيديو شفاف ومرئي على iOS */}
+                <video
+                    ref={videoRef}
+                    className="absolute w-0 h-0 opacity-0"
+                    playsInline
+                />
                 <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover" />
                 {scanning && (
                     <div className="absolute top-0 left-0 w-full h-[2px] bg-green-400 animate-scan"></div>
@@ -131,4 +155,5 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </div>
     );
 };
+
 export default ScanQR;
