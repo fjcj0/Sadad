@@ -34,7 +34,7 @@ app.use(morgan('dev'));
 if (process.env.NODE_ENV !== 'development') {
     job.start();
 }
-app.get('/', (req, res) => {
+app.get('/cron', (req, res) => {
     return res.status(200).json({
         success: true,
         message: 'Connected successfully'
