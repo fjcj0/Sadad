@@ -8,6 +8,9 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const [error, setError] = useState<string | null>(null);
     const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
     const [scanning, setScanning] = useState<boolean>(false);
+    const isMobile = /android|iphone|ipad|ipod|windows phone/i.test(
+        navigator.userAgent
+    );
     useEffect(() => {
         let rafId: number;
         let stream: MediaStream | null = null;
@@ -32,9 +35,13 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         };
         const openLink = (url: string) => {
             try {
-                const opened = window.open(url, "_system");
-                if (!opened) {
+                if (isMobile) {
                     window.location.href = url;
+                } else {
+                    const opened = window.open(url, "_blank");
+                    if (!opened) {
+                        window.location.href = url;
+                    }
                 }
             } catch {
                 window.location.href = url;
@@ -64,6 +71,7 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             if (code) {
                 setResult(code.data);
                 stopCamera();
+
                 if (code.data.startsWith("http://") || code.data.startsWith("https://")) {
                     openLink(code.data);
                     return;
@@ -73,7 +81,7 @@ const ScanQR: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         };
         startCamera();
         return () => stopCamera();
-    }, [facingMode]);
+    }, [facingMode, isMobile]);
     const toggleCamera = () =>
         setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
     return (
