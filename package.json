@@ -2,12 +2,13 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "server/src/server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
-    "start": "node src/server.js",
+    "dev": "nodemon server/src/server.js",
+    "start": "node server/src/server.js",
     "migrate": "npx prisma migrate dev --name",
-    "generate": "npx prisma generate"
+    "generate": "npx prisma generate",
+    "build": " npm install && npx prisma generate --schema=./server/prisma/schema.prisma && cd client && npm install --include=dev && npm run build"
   },
   "keywords": [],
   "author": "",

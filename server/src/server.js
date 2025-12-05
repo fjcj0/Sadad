@@ -11,6 +11,8 @@ import authRoute from './routes/auth.route.js';
 import messageRoute from './routes/message.route.js';
 import job from './config/Cron.js';
 import { verifyToken } from './middleware/VerifyToken.js';
+import path from 'path';
+const __dirname = path.resolve();
 if (!fs.existsSync("uploads")) {
     fs.mkdirSync("uploads");
 }
@@ -54,5 +56,11 @@ app.post('/transbict-text', verifyToken, upload.single('audio'), async (req, res
 });
 app.use('/api/auth', authRoute);
 app.use('/api/message', messageRoute);
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "client", "dist")));
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+    });
+}
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
