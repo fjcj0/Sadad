@@ -13,6 +13,7 @@ import job from './config/Cron.js';
 import { verifyToken } from './middleware/VerifyToken.js';
 import path from 'path';
 const __dirname = path.resolve();
+console.log(__dirname);
 if (!fs.existsSync("uploads")) {
     fs.mkdirSync("uploads");
 }

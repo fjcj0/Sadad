@@ -26,7 +26,7 @@
     "cron": "^4.3.5",
     "crypto": "^1.0.1",
     "dotenv": "^17.2.3",
-    "express": "^5.2.1",
+    "express": "^4.22.1",
     "fs": "^0.0.1-security",
     "groq-sdk": "^0.37.0",
     "helmet": "^8.1.0",
