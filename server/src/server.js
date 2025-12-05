@@ -21,7 +21,7 @@ const app = express();
 app.set('trust proxy', 1);
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.API_URL,
     credentials: true,
 }));
 app.use(express.json());
