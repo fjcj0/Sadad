@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "server/src/server.js",
-  "scripts": {
-    "dev": "nodemon server/src/server.js",
-    "start": "node server/src/server.js",
-    "migrate": "npx prisma migrate dev --name",
-    "generate": "npx prisma generate",
-    "build": "npm install && npx prisma migrate dev --schema=./server/prisma/schema.prisma --name fix_issue_with_deploy && npx prisma generate --schema=./server/prisma/schema.prisma && cd client && npm install --include=dev && npm run build"
-  },
+"scripts": {
+  "dev": "nodemon server/src/server.js",
+  "start": "node server/src/server.js",
+  "migrate": "npx prisma migrate dev --schema=./server/prisma/schema.prisma --name",
+  "generate": "npx prisma generate --schema=./server/prisma/schema.prisma",
+  "build": "npm install && npx prisma migrate dev --schema=./server/prisma/schema.prisma --name fix_issue_with_deploy && npx prisma generate --schema=./server/prisma/schema.prisma && cd client && npm install --include=dev && npm run build"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
