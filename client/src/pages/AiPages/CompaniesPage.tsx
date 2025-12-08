@@ -2,20 +2,16 @@ import { useState, useMemo } from "react";
 import Search from "../../ui/search/Search";
 import { companies } from "../../constants/data";
 import CardCompany from "../../components/AiPages/CardCompany";
-
 const CompaniesPage = () => {
     const [searchValue, setSearchValue] = useState('');
-
     const filteredCompanies = useMemo(() => {
         if (!searchValue.trim()) {
             return companies;
         }
-
         return companies.filter(comp =>
             comp.title.toLowerCase().includes(searchValue.toLowerCase())
         );
     }, [searchValue, companies]);
-
     return (
         <div className="w-full flex flex-col items-center justify-center gap-3">
             <div className="w-full flex flex-col items-center justify-center bg-blue-primary pb-5 rounded-b-4xl">
@@ -25,7 +21,6 @@ const CompaniesPage = () => {
                     <Search placeHolder="ابحث عن الشركة التي تريدها..." setValue={setSearchValue} />
                 </div>
             </div>
-
             <div className="w-full p-3 flex flex-col items-center justify-center gap-4">
                 {filteredCompanies.map((comp, index) => (
                     <CardCompany
@@ -38,5 +33,4 @@ const CompaniesPage = () => {
         </div>
     );
 }
-
 export default CompaniesPage;

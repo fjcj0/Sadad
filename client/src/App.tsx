@@ -93,7 +93,7 @@ function App() {
               <ScanPage />
             </ProtectedUserRoute>
           } />
-          <Route path='/dashboard/companies' element={
+          <Route path='/dashboard/companies/:id' element={
             <ProtectedUserRoute>
               <CompaniesPage />
             </ProtectedUserRoute>
