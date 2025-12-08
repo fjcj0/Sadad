@@ -1,12 +1,14 @@
 import React, { useRef, useEffect, useState } from "react";
 import jsQR, { type QRCode } from "jsqr";
 import { XIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 const ScanQRSmall: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [result, setResult] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
+    const navigate = useNavigate();
     useEffect(() => {
         let rafId: number;
         let stream: MediaStream | null = null;
@@ -48,19 +50,21 @@ const ScanQRSmall: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             if (code) {
                 setResult(code.data);
                 stopCamera();
+                navigate(code.data);
+                return;
             }
             rafId = requestAnimationFrame(tick);
         };
         startCamera();
         return () => stopCamera();
-    }, [facingMode]);
+    }, [facingMode, navigate]);
     return (
         <div className="relative w-full h-[300px] rounded-xl overflow-hidden border flex items-center justify-center">
             <video ref={videoRef} className="absolute w-full h-full object-cover" />
             <canvas ref={canvasRef} className="absolute w-full h-full" />
             <button
                 onClick={onClose}
-                className="absolute w-8 h-8 cursor-pointer flex items-center justify-center top-2 cursor-pointer rounded-full right-2 bg-red-600 text-white"
+                className="absolute w-8 h-8 flex items-center justify-center top-2 right-2 rounded-full bg-red-600 text-white"
             >
                 <XIcon />
             </button>
