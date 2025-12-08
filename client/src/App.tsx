@@ -17,6 +17,7 @@ import ChatPage from './pages/AiPages/Chat/ChatPage';
 import BillPage from './pages/AiPages/BillPage';
 import { useUserStore } from './store/authStore';
 import { Toaster } from 'react-hot-toast';
+import Error404 from './components/Error404';
 const ProtectedUserRoute = ({ children }: { children: ReactNode }) => {
   const { isVerified, isCheckingVerify } = useUserStore();
   if (isCheckingVerify) {
@@ -118,6 +119,9 @@ function App() {
           <ProtectedUserRoute>
             <ChatPage />
           </ProtectedUserRoute>
+        } />
+        <Route path='*' element={
+          <Error404 />
         } />
       </Routes>
     </div>
