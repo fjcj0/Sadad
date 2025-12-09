@@ -50,3 +50,17 @@ model Company {
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
 }
+
+model Bill {
+  id         Int      @id @default(autoincrement())
+  icon       String   @db.Text
+  phone      String   @db.Text
+  address    String   @db.Text
+  company    String   @db.Text
+  service    String   @db.Text
+  name       String   @db.Text
+  number     BigInt   @unique
+  price      Float
+  notes      String   @default("لا يوجد ملاحظات") @db.Text
+  created_at DateTime @default(now())
+}

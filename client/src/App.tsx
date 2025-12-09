@@ -109,7 +109,7 @@ function App() {
               <AiCallPage />
             </ProtectedUserRoute>
           } />
-          <Route path='/dashboard/bill/:id' element={
+          <Route path='/dashboard/bill/:number' element={
             <ProtectedUserRoute>
               <BillPage />
             </ProtectedUserRoute>

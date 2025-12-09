@@ -1,4 +1,23 @@
 import prisma from "../config/PrismClinet.js";
+export const bills = [{
+    billOwnerInfo: {
+        name: 'محمد رزق ابو علي',
+        phone: '0591245567',
+        address: 'رام الله، شارع القدس'
+    },
+    billInfo: {
+        company: 'مركبتي',
+        service: 'اغسلني',
+        billNumber: '202406987654',
+        date: '2025-06-01',
+    },
+    moneyInfo: {
+        money: 145.75,
+        currency: 'شيكل'
+    },
+    note: "لا يوجد ملاحظات",
+    icon: '/pictures/company.png',
+}];
 const categories = [
     { id: 1, title: 'شركات الاتصالات', icon: '/items-pictures/telecom.png' },
     { id: 2, title: 'شركات الكهرباء', icon: '/items-pictures/electronic.png' },
@@ -45,6 +64,22 @@ async function main() {
                 },
             });
         }
+    }
+    for (const b of bills) {
+        await prisma.bill.create({
+            data: {
+                name: b.billOwnerInfo.name,
+                icon: b.icon,
+                phone: b.billOwnerInfo.phone,
+                address: b.billOwnerInfo.address,
+                company: b.billInfo.company,
+                service: b.billInfo.service,
+                number: BigInt(b.billInfo.billNumber),
+                price: b.moneyInfo.money,
+                notes: b.note,
+                created_at: new Date(b.billInfo.date),
+            },
+        });
     }
     console.log('✅ Seeding completed!');
 }

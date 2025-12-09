@@ -13,6 +13,7 @@ import dataRoute from './routes/data.route.js';
 import job from './config/Cron.js';
 import { verifyToken } from './middleware/VerifyToken.js';
 import path from 'path';
+import { getBill } from './controller/bill.controller.js';
 const __dirname = path.resolve();
 console.log(__dirname);
 if (!fs.existsSync("uploads")) {
@@ -59,6 +60,7 @@ app.post('/transbict-text', verifyToken, upload.single('audio'), async (req, res
 app.use('/api/auth', authRoute);
 app.use('/api/message', messageRoute);
 app.use('/api/data', dataRoute);
+app.get('/api/bill/:number', getBill);
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "client", "dist")));
     app.get("*", (req, res) => {
