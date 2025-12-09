@@ -5,6 +5,8 @@ import blueAnimationRecord from '../../animation/BlueAudio.json';
 import { StopCircle } from "lucide-react";
 const AiCallPage = () => {
     const [isRecording, setIsRecording] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState('');
     return (
         <div className="w-full min-h-[85vh] flex flex-col items-center justify-center gap-5">
             <h1 className="mt-3">سدد فاتورتك بسهولة من خلال التحدث الى</h1>
