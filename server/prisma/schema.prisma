@@ -61,6 +61,6 @@ model Bill {
   name       String   @db.Text
   number     BigInt   @unique
   price      Float
-  notes      String   @default("لا يوجد ملاحظات")
+  notes      String?  @db.Text
   created_at DateTime @default(now())
 }
