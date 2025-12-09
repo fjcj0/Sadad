@@ -1,11 +1,36 @@
-import { useState } from "react";
-import { categories } from "../../constants/data";
+import { useEffect, useState } from "react";
 import CardCategory from "../../components/AiPages/CardCategory";
+import axios from "axios";
+import { baseUrl } from "../../utils/baseUrl";
+import SplashScreen from "../../tools/SplashScreen";
+axios.defaults.withCredentials = true;
+type Category = {
+    title: string,
+    id: number,
+    icon: string
+};
 const CategoriesPage = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const handleCategories = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axios.get(`${baseUrl}/api/data/category`);
+            setCategories(response.data.categories);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    useEffect(() => {
+        handleCategories();
+    }, []);
     const [search, setSearch] = useState("");
     const filteredCategories = categories.filter(cat =>
         cat.title.toLowerCase().includes(search.toLowerCase())
     );
+    if (isLoading) return (<SplashScreen />);
     return (
         <div className="w-full flex flex-col items-center justify-center gap-3 p-5">
             <div className="w-[20rem] px-3 py-2 gap-1 rounded-xl flex bg-[#F8F8F8] items-center justify-start">
