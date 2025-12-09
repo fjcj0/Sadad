@@ -9,6 +9,7 @@ import { upload } from './lib/upload.js';
 import { TransbictAudio } from './config/TransbictAudio.js';
 import authRoute from './routes/auth.route.js';
 import messageRoute from './routes/message.route.js';
+import dataRoute from './routes/data.route.js';
 import job from './config/Cron.js';
 import { verifyToken } from './middleware/VerifyToken.js';
 import path from 'path';
@@ -57,6 +58,7 @@ app.post('/transbict-text', verifyToken, upload.single('audio'), async (req, res
 });
 app.use('/api/auth', authRoute);
 app.use('/api/message', messageRoute);
+app.use('/api/data', dataRoute);
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "client", "dist")));
     app.get("*", (req, res) => {

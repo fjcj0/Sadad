@@ -35,3 +35,18 @@ model Message {
   userId     Int
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  icon      String    @db.Text
+  title     String    @db.Text
+  companies Company[]
+}
+
+model Company {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.Text
+  icon       String   @db.Text
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+}
