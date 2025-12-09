@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import RecordAnimation from '../animation/BlueAudio.json';
 import Animation from '../utils/Animation';
+import { baseUrl } from '../utils/baseUrl';
 type SendMessageProps = {
     message: string;
     setMessage: (value: string) => void;
@@ -34,7 +35,7 @@ const SendMessage = ({ message, setMessage, send, isLoading, setIsScan }: SendMe
         const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
         const formData = new FormData();
         formData.append('audio', audioBlob, 'recording.webm');
-        const res = await fetch('http://localhost:4500/transbict-text', {
+        const res = await fetch(`${baseUrl}/transbict-text`, {
             method: 'POST',
             body: formData,
             credentials: 'include'
