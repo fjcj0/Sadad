@@ -12,38 +12,43 @@ const ScanQRSmall: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     useEffect(() => {
         let rafId: number;
         let stream: MediaStream | null = null;
+        const isMobile = /android|iphone|ipad|ipod|windows phone/i.test(navigator.userAgent);
         const startCamera = async () => {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode }
-                });
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                    await videoRef.current.play();
+                if (!videoRef.current) return;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: { ideal: facingMode } },
+                    });
+                } catch {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 }
+                if (!videoRef.current) return;
+                videoRef.current.srcObject = stream;
+                videoRef.current.playsInline = true;
+                await videoRef.current.play();
+
                 rafId = requestAnimationFrame(tick);
-            } catch {
-                setError("تعذر تشغيل الكاميرا");
+            } catch (err) {
+                console.error(err);
+                setError("تعذر تشغيل الكاميرا. تأكد من السماح بالوصول أو استخدام HTTPS");
             }
         };
         const stopCamera = () => {
             if (stream) stream.getTracks().forEach((t) => t.stop());
-            cancelAnimationFrame(rafId);
+            if (rafId) cancelAnimationFrame(rafId);
         };
         const tick = () => {
-            if (!videoRef.current || !canvasRef.current) {
+            if (!videoRef.current || !canvasRef.current || videoRef.current.readyState !== videoRef.current.HAVE_ENOUGH_DATA) {
                 rafId = requestAnimationFrame(tick);
                 return;
             }
             const video = videoRef.current;
             const canvas = canvasRef.current;
             const ctx = canvas.getContext("2d");
-            if (!ctx || video.readyState !== video.HAVE_ENOUGH_DATA) {
-                rafId = requestAnimationFrame(tick);
-                return;
-            }
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            if (!ctx) return;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const code: QRCode | null = jsQR(imageData.data, canvas.width, canvas.height);
@@ -58,15 +63,23 @@ const ScanQRSmall: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         startCamera();
         return () => stopCamera();
     }, [facingMode, navigate]);
+    const toggleCamera = () =>
+        setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
     return (
-        <div className="relative w-full h-[300px] rounded-xl overflow-hidden border flex items-center justify-center">
-            <video ref={videoRef} className="absolute w-full h-full object-cover" />
-            <canvas ref={canvasRef} className="absolute w-full h-full" />
+        <div className="relative w-full h-[300px] rounded-xl overflow-hidden border flex items-center justify-center bg-black">
+            <video ref={videoRef} className="absolute w-0 h-0 opacity-0" playsInline />
+            <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover" />
             <button
                 onClick={onClose}
-                className="absolute w-8 h-8 flex items-center justify-center top-2 right-2 rounded-full bg-red-600 text-white"
+                className="absolute w-8 h-8 flex items-center justify-center top-2 right-2 rounded-full bg-red-600 text-white z-10"
             >
                 <XIcon />
+            </button>
+            <button
+                onClick={toggleCamera}
+                className="absolute bottom-2 left-2 px-4 py-1 bg-white text-black rounded-full text-sm z-10"
+            >
+                تبديل الكاميرا
             </button>
             {result && (
                 <p className="absolute bottom-14 bg-white text-black px-4 py-1 rounded text-sm">
