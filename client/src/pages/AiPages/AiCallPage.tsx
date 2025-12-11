@@ -50,16 +50,18 @@ const AiCallPage = () => {
                 credentials: 'include'
             });
             const data = await res.json();
-            setMessage(data.text);
+            const recognizedText = data.text || "";
+            setMessage(recognizedText);
             const response = await axios.post(`${baseUrl}/api/message/send-message`, {
-                question: data.text
+                question: recognizedText
             });
-            setMessage(response.data.answer);
+            setMessage(response.data.message || "تمت معالجة الرسالة");
             if (response.data.link) {
                 navigate(response.data.link);
             }
         } catch (error) {
             console.error("Error sending audio:", error);
+            setMessage("حدث خطأ أثناء معالجة الصوت.");
         } finally {
             setIsLoading(false);
         }
