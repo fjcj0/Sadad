@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "server/src/server.js",
-"scripts": {
-  "dev": "nodemon server/src/server.js",
-  "start": "node server/src/server.js",
-  "migrate": "npx prisma migrate dev --schema=./server/prisma/schema.prisma --name",
-  "generate": "npx prisma generate --schema=./server/prisma/schema.prisma",
-  "build": "npm install && npx prisma migrate deploy --schema=./server/prisma/schema.prisma && npx prisma generate --schema=./server/prisma/schema.prisma && node server/src/seed/seed.js && cd client && npm install --include=dev && npm run build"
-},
+  "scripts": {
+    "dev": "nodemon server/src/server.js",
+    "start": "node server/src/server.js",
+    "migrate": "npx prisma migrate dev --schema=./server/prisma/schema.prisma --name",
+    "generate": "npx prisma generate --schema=./server/prisma/schema.prisma",
+    "build": "npm install && npx prisma migrate deploy --schema=./server/prisma/schema.prisma && npx prisma generate --schema=./server/prisma/schema.prisma && node server/src/seed/seed.js && cd client && npm install --include=dev && npm run build"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -34,6 +34,7 @@
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "mysql2": "^3.15.3",
+    "node-cache": "^5.1.2",
     "prisma": "^4.16.2",
     "twilio": "^5.10.7",
     "upload": "^1.3.2"

@@ -60,7 +60,7 @@ export const sendMessage = async (request, response) => {
                     return response.status(200).json({
                         success: true,
                         answer: `تم إرسال رابط الفاتورة.`,
-                        link: invoice.link
+                        link: `/dashboard/bill/${invoice.number}`
                     });
                 }
             }

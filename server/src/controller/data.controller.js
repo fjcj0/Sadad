@@ -51,7 +51,6 @@ export const getInvoices = async () => {
             select: {
                 name: true,
                 number: true,
-                link: true,
                 company: true
             }
         });
