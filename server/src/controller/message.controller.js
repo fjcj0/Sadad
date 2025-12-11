@@ -1,6 +1,6 @@
 import prisma from "../config/PrismClinet.js";
-import { invoices } from "../constants/data.js";
 import { AskAi } from "../utils/AskAi.js";
+import { getInvoices } from "./data.controller.js";
 export const getMessages = async (request, response) => {
     try {
         if (!request.userId) {
@@ -25,6 +25,7 @@ export const getMessages = async (request, response) => {
 export const sendMessage = async (request, response) => {
     try {
         const { question } = request.body || {};
+        const invoices = await getInvoices();
         if (!question) return response.status(400).json({ success: false, error: "Question is required" });
         if (!request.userId) return response.status(405).json({ success: false, error: "Method not allowed" });
         await prisma.message.create({
@@ -40,18 +41,18 @@ export const sendMessage = async (request, response) => {
         const detectedNumbers = question.match(/\d+/g);
         if (detectedNumbers) {
             for (let num of detectedNumbers) {
-                const found = invoices.find(inv => inv.invoiceNumber === num);
+                const found = invoices.find(inv => inv.number === num);
                 if (found) verifiedUser = found;
             }
         }
         invoices.forEach(inv => {
-            if (question.trim() === inv.username) verifiedUser = inv;
+            if (question.trim() === inv.name) verifiedUser = inv;
         });
         if (question.trim() === "نعم") {
             const lastNumberMsg = messages.slice().reverse().find(m => m.message.match(/\d+/));
             if (lastNumberMsg) {
                 const num = lastNumberMsg.message.match(/\d+/)[0];
-                const invoice = invoices.find(inv => inv.invoiceNumber === num);
+                const invoice = invoices.find(inv => inv.number === num);
                 if (invoice) {
                     await prisma.message.create({
                         data: { role: "ai", message: `تم إرسال رابط الفاتورة.`, userId: request.userId },
