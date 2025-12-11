@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import RecordAnimation from '../animation/BlueAudio.json';
 import Animation from '../utils/Animation';
 import { baseUrl } from '../utils/baseUrl';
@@ -13,6 +13,16 @@ const SendMessage = ({ message, setMessage, send, isLoading, setIsScan }: SendMe
     const [isRecording, setIsRecording] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunks = useRef<Blob[]>([]);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const adjustHeight = () => {
+        const el = textareaRef.current;
+        if (!el) return;
+        el.style.height = "auto";
+        el.style.height = `${el.scrollHeight}px`;
+    };
+    useEffect(() => {
+        adjustHeight();
+    }, [message]);
     const startRecording = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const recorder = new MediaRecorder(stream);
@@ -45,7 +55,7 @@ const SendMessage = ({ message, setMessage, send, isLoading, setIsScan }: SendMe
     };
     return (
         <div className="fixed bottom-0 w-screen">
-            <div className="w-full flex items-center p-5 justify-center gap-4 rounded-t-3xl bg-white/50 backdrop-filter backdrop-blur-sm border-t-[0.3px] border-t-gray-400 h-[7.5rem]">
+            <div className="w-full flex items-center p-5 justify-center gap-4 rounded-t-3xl bg-white/50 backdrop-filter backdrop-blur-sm border-t-[0.3px] border-t-gray-400 h-auto">
                 <div>
                     {!isRecording ? (
                         <button
@@ -73,21 +83,25 @@ const SendMessage = ({ message, setMessage, send, isLoading, setIsScan }: SendMe
                     {isRecording ? (
                         <Animation animation={RecordAnimation} width={5} height={5} />
                     ) : (
-                        <div>
-                            <input
-                                type="text"
+                        <div className="relative">
+                            <textarea
+                                ref={textareaRef}
                                 value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                className="w-full rounded-4xl bg-[#F8F8F8] px-5 py-5 text-sm placeholder:text-sm placeholder:text-[#AAAFB5] text-gray-700"
+                                onChange={(e) => {
+                                    setMessage(e.target.value);
+                                    adjustHeight();
+                                }}
+                                rows={1}
+                                className="w-full max-h-96 rounded-4xl bg-[#F8F8F8] px-14 py-5 text-sm placeholder:text-sm placeholder:text-[#AAAFB5] text-gray-700 resize-none"
                                 placeholder="تحدث مع إي-سداد AI"
                             />
                             <button
                                 disabled={isLoading}
                                 type="button"
                                 onClick={send}
-                                className={`cursor-pointer absolute left-5 top-5 ${isLoading && 'opacity-50'}`}
+                                className={`cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 ${isLoading && 'opacity-50'}`}
                             >
-                                <img src="/icons/sendIcon.png" alt="send icon" />
+                                <img src="/icons/sendIcon.png" alt="send icon" className='w-5 h-5 mb-1' />
                             </button>
                         </div>
                     )}
