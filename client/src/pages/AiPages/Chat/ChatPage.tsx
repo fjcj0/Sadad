@@ -9,16 +9,13 @@ import { baseUrl } from "../../../utils/baseUrl";
 import ScanQR from "../../../components/ScanQR";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-
 axios.defaults.withCredentials = true;
 dayjs.extend(relativeTime);
-
 type ChatMessage = {
     role: 'user' | 'ai';
     message: string;
     created_at: string;
 };
-
 const ChatPage = () => {
     const [message, setMessage] = useState<string>('');
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -27,7 +24,6 @@ const ChatPage = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const [isScanQr, setIsScanQr] = useState(false);
-
     const handleMessages = async () => {
         setIsFetchingMessages(true);
         try {
@@ -39,28 +35,21 @@ const ChatPage = () => {
             setIsFetchingMessages(false);
         }
     };
-
     useEffect(() => { handleMessages(); }, []);
-
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
-
     useEffect(() => { setTimeout(scrollToBottom, 100); }, [messages]);
-
     const sendMessage = async () => {
         if (!message.trim()) return;
         setIsLoading(true);
         const timestamp = new Date().toISOString();
         const userMessage = message;
-
         try {
             setMessages(prev => [...prev, { role: 'user', message: userMessage, created_at: timestamp }]);
             setMessage('');
-
             let response;
             let retries = 0;
-
             while (retries < 3) {
                 try {
                     response = await axios.post(`${baseUrl}/api/message/send-message`, { question: userMessage });
@@ -74,20 +63,14 @@ const ChatPage = () => {
                     }
                 }
             }
-
             if (!response) throw new Error("فشل إرسال الرسالة بعد 3 محاولات");
-
             const aiMessage: string = response.data.message;
             const link: string | null = response.data.link || null;
-
             setMessages(prev => [
                 ...prev,
                 { role: 'ai', message: aiMessage, created_at: new Date().toISOString() }
             ]);
-
-            // تحويل المستخدم مباشرة إذا كان هناك رابط
             if (link) navigate(link);
-
         } catch (error) {
             setMessages(prev => [
                 ...prev,
@@ -97,10 +80,8 @@ const ChatPage = () => {
             setIsLoading(false);
         }
     };
-
     if (isFetchingMessages) return <SplashScreen />;
     if (isScanQr) return <ScanQR onClose={() => setIsScanQr(false)} />;
-
     return (
         <div className="w-screen min-h-[100vh] flex flex-col items-start justify-start">
             <div className="fixed w-screen bg-white/50 backdrop-filter backdrop-blur-sm flex items-center h-[5rem] justify-end" dir="rtl">
@@ -145,5 +126,4 @@ const ChatPage = () => {
         </div>
     );
 };
-
 export default ChatPage;

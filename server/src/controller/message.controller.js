@@ -37,6 +37,8 @@ export const sendMessage = async (request, response) => {
         const invoicesList = invoices.map(inv => `رقم الفاتورة: ${inv.number}`).join("\n");
         const aiRawAnswer = await AskAi(`
 أنت تطبيق E-SADAD.
+- لا تكتب أي معلومات عن الفواتير إلا إذا طلب المستخدم رقمًا محددًا موجودًا.
+- مطورك هو شركة بيلسان.
 - رد فقط بصيغة JSON:
 {
   "message": "نص الرد",
