@@ -25,7 +25,6 @@ export const getMessages = async (request, response) => {
 export const sendMessage = async (request, response) => {
     try {
         const { question } = request.body || {};
-        const invoices = await getInvoices();
         if (!question) return response.status(400).json({ success: false, error: "Question is required" });
         if (!request.userId) return response.status(405).json({ success: false, error: "Method not allowed" });
         await prisma.message.create({
@@ -37,17 +36,16 @@ export const sendMessage = async (request, response) => {
             orderBy: { created_at: "asc" },
         });
         const conversationHistory = messages.map(msg => `${msg.role === "ai" ? "AI" : "User"}: ${msg.message}`).join("\n");
-        let verifiedUser = null;
+        const invoices = await getInvoices();
+        const invoicesList = invoices.map(inv => `رقم الفاتورة: ${inv.number}`).join("\n");
+        let verifiedInvoice = null;
         const detectedNumbers = question.match(/\d+/g);
         if (detectedNumbers) {
             for (let num of detectedNumbers) {
-                const found = invoices.find(inv => inv.number === num);
-                if (found) verifiedUser = found;
+                const invoice = invoices.find(inv => inv.number === num);
+                if (invoice) verifiedInvoice = invoice;
             }
         }
-        invoices.forEach(inv => {
-            if (question.trim() === inv.name) verifiedUser = inv;
-        });
         if (question.trim() === "نعم") {
             const lastNumberMsg = messages.slice().reverse().find(m => m.message.match(/\d+/));
             if (lastNumberMsg) {
@@ -59,13 +57,13 @@ export const sendMessage = async (request, response) => {
                     });
                     return response.status(200).json({
                         success: true,
-                        answer: `تم إرسال رابط الفاتورة.`,
+                        answer: `تم إرسال رابط الفاتورة رقم ${invoice.number} إليك مباشرةً من الخادم.`,
                         link: `/dashboard/bill/${invoice.number}`
                     });
                 }
             }
         }
-        if (verifiedUser && detectedNumbers) {
+        if (verifiedInvoice && detectedNumbers) {
             const invoiceNumber = detectedNumbers[0];
             await prisma.message.create({
                 data: { role: "ai", message: `هل تريد مني إرسال رابط الفاتورة رقم ${invoiceNumber}?`, userId: request.userId },
@@ -79,11 +77,11 @@ export const sendMessage = async (request, response) => {
 أنت الآن تطبيق E-SADAD.
 مهمتك:
 - اذا أحدهم سألك عن مطورك قل لهم مطوري هو شركة بيلسان.
-- لا تنشئ روابط بنفسك، إلا بعد التحقق.
+- لا تنشئ روابط بنفسك، إلا بعد التحقق من الفواتير في قاعدة البيانات.
 - الروابط فقط تأتي من الخادم وليس منك.
-- إذا ذكر المستخدم رقم الفاتورة بالكلمات العربية (مثال: "ثلاثة صفر صفر واحد")، قم بتحويله إلى أرقام (مثال: 3001).
-- إذا ذكر المستخدم اسمه أو رقم الفاتورة، تحقق من وجوده في سجلات الفواتير.
-- إذا كان الرقم موجودًا وأكد المستخدم، أرسل رابط الفاتورة مباشرة من الخادم.
+- تحقق دائمًا من وجود الفاتورة باستخدام الرقم فقط قبل الرد.
+- هذه هي الفواتير المتوفرة حاليًا:
+${invoicesList}
 - المحادثة السابقة: 
 ${conversationHistory}
 - رسالة المستخدم: ${question}
@@ -98,4 +96,4 @@ ${conversationHistory}
             error: error instanceof Error ? error.message : error,
         });
     }
-}
+};
