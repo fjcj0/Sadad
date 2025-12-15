@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express from 'express';
+import express, { response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -14,6 +14,7 @@ import job from './config/Cron.js';
 import { verifyToken } from './middleware/VerifyToken.js';
 import path from 'path';
 import { getBill } from './controller/bill.controller.js';
+import { TextToSpeech } from './utils/TextToSpeech.js';
 const __dirname = path.resolve();
 console.log(__dirname);
 if (!fs.existsSync("uploads")) {
@@ -55,6 +56,18 @@ app.post('/transbict-text', verifyToken, upload.single('audio'), async (req, res
         return res.json({ text });
     } catch (error) {
         return res.status(500).json({ error: error.message });
+    }
+});
+app.post('/text-to-speech', verifyToken, async (req, res) => {
+    try {
+        const { text } = req.body;
+        const audioBuffer = await TextToSpeech(text);
+        res.setHeader("Content-Type", "audio/mpeg");
+        res.setHeader("Content-Length", audioBuffer.length);
+        res.send(audioBuffer);
+    } catch (error) {
+        console.error("TTS ERROR:", error);
+        res.status(500).json({ error: error.message });
     }
 });
 app.use('/api/auth', authRoute);

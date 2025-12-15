@@ -6,6 +6,7 @@ import { StopCircle } from "lucide-react";
 import { baseUrl } from "../../utils/baseUrl";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { playTTS } from "../../utils/TextToSpeech";
 axios.defaults.withCredentials = true;
 const AiCallPage = () => {
     const navigate = useNavigate();
@@ -55,7 +56,12 @@ const AiCallPage = () => {
             const response = await axios.post(`${baseUrl}/api/message/send-message`, {
                 question: recognizedText
             });
-            setMessage(response.data.message || "تمت معالجة الرسالة");
+            setMessage(response.data.message);
+            try {
+                await playTTS(response.data.message);
+            } catch (e) {
+                console.log("TTS failed:", e instanceof Error ? e.message : e);
+            }
             if (response.data.link) {
                 navigate(response.data.link);
             }
