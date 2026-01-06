@@ -8,7 +8,7 @@
     "start": "node server/src/server.js",
     "migrate": "npx prisma migrate dev --schema=./server/prisma/schema.prisma --name",
     "generate": "npx prisma generate --schema=./server/prisma/schema.prisma",
-    "build": "npm install && npx prisma migrate dev --schema=./server/prisma/schema.prisma --name init_railway && npx prisma generate --schema=./server/prisma/schema.prisma && node server/src/seed/seed.js && cd client && npm install --include=dev && npm run build"
+    "build": "npm install && npx prisma generate --schema=./server/prisma/schema.prisma && cd client && npm install --include=dev && npm run build"
   },
   "keywords": [],
   "author": "",
