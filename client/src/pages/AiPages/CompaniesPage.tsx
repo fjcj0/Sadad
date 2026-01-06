@@ -2,10 +2,10 @@ import { useState, useMemo, useEffect } from "react";
 import Search from "../../ui/search/Search";
 import CardCompany from "../../components/AiPages/CardCompany";
 import axios from "axios";
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { baseUrl } from "../../utils/baseUrl";
 import SplashScreen from "../../tools/SplashScreen";
-import { Navigate } from "react-router-dom";
+import { motion } from "framer-motion";
 axios.defaults.withCredentials = true;
 type Company = {
     id: number,
@@ -34,9 +34,7 @@ const CompaniesPage = () => {
         handleCompanies();
     }, []);
     const filteredCompanies = useMemo(() => {
-        if (!searchValue.trim()) {
-            return companies;
-        }
+        if (!searchValue.trim()) return companies;
         return companies.filter(comp =>
             comp.title.toLowerCase().includes(searchValue.toLowerCase())
         );
@@ -55,11 +53,28 @@ const CompaniesPage = () => {
             </div>
             <div className="w-full p-3 flex flex-col items-center justify-center gap-4">
                 {filteredCompanies.map((comp, index) => (
-                    <CardCompany
-                        key={index}
-                        image={comp.icon}
-                        title={comp.title}
-                    />
+                    <motion.div
+                        key={comp.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{
+                            delay: index * 0.1,
+                            duration: 0.5,
+                            type: "spring",
+                            stiffness: 100,
+                        }}
+                        className="w-full"
+                    >
+                        <motion.div
+
+                            className="w-full"
+                        >
+                            <CardCompany
+                                image={comp.icon}
+                                title={comp.title}
+                            />
+                        </motion.div>
+                    </motion.div>
                 ))}
             </div>
         </div>

@@ -5,6 +5,7 @@ import { baseUrl } from "../../utils/baseUrl";
 import { Navigate, useParams } from "react-router-dom";
 import axios from "axios";
 import SplashScreen from "../../tools/SplashScreen";
+import { motion } from "framer-motion";
 axios.defaults.withCredentials = true;
 interface Bill {
     icon: string;
@@ -38,28 +39,46 @@ const BillPage = () => {
     useEffect(() => {
         handleBill();
     }, []);
-    if (isLoading) {
-        return (<SplashScreen />);
-    }
-    if (isFetched && !isLoading && !bill) {
-        return <Navigate to={"/PageNotFound"} />;
-    }
-    if (!bill) {
-        return null;
-    }
+    if (isLoading) return <SplashScreen />;
+    if (isFetched && !isLoading && !bill) return <Navigate to={"/PageNotFound"} />;
+    if (!bill) return null;
+    const containerVariants = {
+        hidden: {},
+        visible: {
+            transition: {
+                staggerChildren: 0.1,
+            },
+        },
+    };
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: "spring" as const, stiffness: 100 } },
+    };
     return (
-        <div className="w-full max-w-3xl mx-auto flex flex-col p-5 items-center justify-center gap-y-3">
-            <h1 className="text-2xl font-medium">تفاصيل الفاتورة</h1>
-            <img src={bill.icon} alt="صورة الشركة" className="w-14 h-14" />
-            <div className="w-full">
+        <motion.div
+            className="w-full max-w-3xl mx-auto flex flex-col p-5 items-center justify-center gap-y-3"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            <motion.h1 className="text-2xl font-medium" variants={itemVariants}>
+                تفاصيل الفاتورة
+            </motion.h1>
+            <motion.img
+                src={bill.icon}
+                alt="صورة الشركة"
+                className="w-14 h-14"
+                variants={itemVariants}
+            />
+            <motion.div className="w-full" variants={itemVariants}>
                 <div className="flex flex-col p-5 gap-4 rounded-3xl w-full mt-3 border-[0.5px] border-[#EDEDED]">
                     <h1 className="font-bold">معلومات صاحب الفاتورة</h1>
                     <BillCard title="الاسم:" value={bill.name} />
                     <BillCard title="الهاتف:" value={bill.phone} />
                     <BillCard title="العنوان:" value={bill.address} />
                 </div>
-            </div>
-            <div className="w-full">
+            </motion.div>
+            <motion.div className="w-full" variants={itemVariants}>
                 <div className="flex flex-col p-5 gap-4 rounded-3xl w-full mt-3 border-[0.5px] border-[#EDEDED]">
                     <h1 className="font-bold">معلومات الفاتورة</h1>
                     <BillCard title="الشركة:" value={bill.company} />
@@ -67,21 +86,27 @@ const BillPage = () => {
                     <BillCard title="رقم الفاتورة:" value={bill.number} />
                     <BillCard title="التاريخ:" value={new Date(bill.created_at).toLocaleDateString()} />
                 </div>
-            </div>
-            <div className="w-full">
+            </motion.div>
+            <motion.div className="w-full" variants={itemVariants}>
                 <div className="flex flex-col p-5 gap-4 rounded-3xl w-full mt-3 border-[0.5px] border-[#EDEDED]">
                     <h1 className="font-bold">المعلومات المالية</h1>
                     <BillCard title="المبلغ:" value={`${bill.price} ₪`} />
                 </div>
-            </div>
-            <div className="w-full">
+            </motion.div>
+            <motion.div className="w-full" variants={itemVariants}>
                 <div className="flex flex-col p-5 gap-4 rounded-3xl w-full mt-3 border-[0.5px] border-[#EDEDED]">
                     <h1 className="font-bold">الملاحظات</h1>
                     <BillCard title="ملاحظة:" value={bill.notes} />
                 </div>
-            </div>
-            <Button isLoading={false} title="ادفع الان" onPress={() => console.log('تم الضغط على الدفع')} />
-        </div>
+            </motion.div>
+            <motion.div variants={itemVariants} className="w-full">
+                <Button
+                    isLoading={false}
+                    title="ادفع الان"
+                    onPress={() => console.log('تم الضغط على الدفع')}
+                />
+            </motion.div>
+        </motion.div>
     );
 };
 export default BillPage;

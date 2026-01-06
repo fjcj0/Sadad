@@ -15,7 +15,7 @@ const CardCategory = ({
             onClick={() => {
                 navigate(`/dashboard/companies/${id}`);
             }}
-            type="button" className="bg-white cursor-pointer hover:scale-110 hover:bg-blue-500/50 active:scale-75 duration-300 transition-all ease shadow-sm w-full h-[6.5rem] px-3 flex flex-col py-3 rounded-xl items-center justify-center gap-3">
+            type="button" className="bg-white  cursor-pointer hover:scale-110 hover:bg-blue-500/50 active:scale-75 duration-300 transition-all ease shadow-sm w-full h-[7rem] md:h-[10rem] px-3 flex flex-col py-3 rounded-xl items-center justify-center gap-3">
             <div className="px-3 py-2 flex items-center justify-center bg-blue-primary rounded-md">
                 <img src={image} alt={title} />
             </div>

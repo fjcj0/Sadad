@@ -3,6 +3,7 @@ import CardCategory from "../../components/AiPages/CardCategory";
 import axios from "axios";
 import { baseUrl } from "../../utils/baseUrl";
 import SplashScreen from "../../tools/SplashScreen";
+import { motion } from "framer-motion";
 axios.defaults.withCredentials = true;
 type Category = {
     title: string,
@@ -47,18 +48,33 @@ const CategoriesPage = () => {
                 <div dir="ltr" className="w-full">
                     <h1 className="font-bold text-2xl">E-Sadad</h1>
                 </div>
-                <div className="w-full items-center justify-center">
-                    <div className="grid grid-cols-3 md:grid-cols-4 gap-5 place-items-center place-content-around">
-                        {
-                            filteredCategories.map((cat, index) => (
-                                <CardCategory
-                                    key={index}
-                                    id={cat.id}
-                                    title={cat.title}
-                                    image={cat.icon}
-                                />
-                            ))
-                        }
+                <div className="w-full mx-3 items-center justify-center">
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-5 md:gap-10 place-items-center place-content-around">
+                        {filteredCategories.map((cat, index) => (
+                            <motion.div
+                                key={cat.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{
+                                    delay: index * 0.1,
+                                    duration: 0.5,
+                                    type: "spring",
+                                    stiffness: 100,
+                                }}
+                                className="w-full"
+                            >
+                                <motion.div
+
+                                    className="w-full"
+                                >
+                                    <CardCategory
+                                        id={cat.id}
+                                        title={cat.title}
+                                        image={cat.icon}
+                                    />
+                                </motion.div>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
             </div>

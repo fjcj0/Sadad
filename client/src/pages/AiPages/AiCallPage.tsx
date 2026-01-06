@@ -7,6 +7,7 @@ import { baseUrl } from "../../utils/baseUrl";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { playTTS } from "../../utils/TextToSpeech";
+import { motion } from "framer-motion";
 axios.defaults.withCredentials = true;
 const AiCallPage = () => {
     const navigate = useNavigate();
@@ -72,12 +73,34 @@ const AiCallPage = () => {
             setIsLoading(false);
         }
     };
+    const containerVariants = {
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.15 } }
+    };
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, duration: 0.5 } }
+    };
     return (
-        <div className="w-full min-h-[85vh] flex flex-col items-center justify-center gap-5">
-            <h1 className="mt-3">سدد فاتورتك بسهولة من خلال التحدث الى</h1>
-            <h1 className="text-blue-primary font-bold">مساعد اي-سداد الذكي.</h1>
-            <img src={'/pictures/listen.png'} alt="ai picture" className="w-50 rounded-full" />
-            <div className="w-full flex gap-5 flex-col items-center text-center justify-center">
+        <motion.div
+            className="w-full min-h-[85vh] flex flex-col items-center justify-center gap-5"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            <motion.h1 className="mt-3" variants={itemVariants}>
+                سدد فاتورتك بسهولة من خلال التحدث الى
+            </motion.h1>
+            <motion.h1 className="text-blue-primary font-bold" variants={itemVariants}>
+                مساعد اي-سداد الذكي.
+            </motion.h1>
+            <motion.img
+                src={'/pictures/listen.png'}
+                alt="ai picture"
+                className="w-50 rounded-full"
+                variants={itemVariants}
+            />
+            <motion.div className="w-full flex gap-5 flex-col items-center text-center justify-center" variants={itemVariants}>
                 <div className="text-[#7D7E83] text-xs leading-5 min-h-[2rem]">
                     {isLoading ? (
                         <span className="text-sm text-gray-500">جاري معالجة الصوت...</span>
@@ -115,8 +138,8 @@ const AiCallPage = () => {
                         </>
                     )}
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 export default AiCallPage;
