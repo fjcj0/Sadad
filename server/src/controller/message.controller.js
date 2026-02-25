@@ -32,39 +32,43 @@ export const sendMessage = async (request, response) => {
             select: { role: true, message: true, created_at: true },
             orderBy: { created_at: "asc" },
         });
-        const conversationHistory = messages
-            .map(msg => `${msg.role === "ai" ? "AI" : "User"}: ${msg.message}`)
-            .join("\n");
+        const conversationHistory = messages.map(msg => `${msg.role === "ai" ? "AI" : "User"}: ${msg.message}`).join("\n");
         const invoices = await getInvoices();
-        const invoicesNumbers = invoices.map(inv => String(inv.number));
-        const invoiceRegex = /\d{6,}/g;
-        const userInvoiceNumbers = (question.match(invoiceRegex) || []).map(n => String(n));
-        const matchedInvoice = userInvoiceNumbers.find(num => invoicesNumbers.includes(num));
-        let cleanMessage = "";
-        let link = null;
-        if (matchedInvoice) {
-            cleanMessage = `تم إرسالك إلى الفاتورة رقم ${matchedInvoice}.`;
-            link = `/dashboard/bill/${matchedInvoice}`;
-        } else if (userInvoiceNumbers.length > 0) {
-            cleanMessage = "عذرًا، لا يمكن عرض هذه الفاتورة حفاظًا على الخصوصية.";
-        } else {
-            const aiRawAnswer = await AskAi(`
+        const invoicesList = invoices.map(inv => `رقم الفاتورة: ${inv.number}`).join("\n");
+        const aiRawAnswer = await AskAi(`
 أنت تطبيق E-SADAD.
-- لا تعطي أي روابط للفواتير.
-- الرد على أي سؤال عام أو استعلام بدون رقم محدد يجب أن يكون نصًا مفيدًا للمستخدم.
+- لا تكتب أي معلومات عن الفواتير إلا إذا طلب المستخدم رقمًا محددًا موجودًا.
+- مطورك هو شركة بيلسان.
+- رد فقط بصيغة JSON:
+{
+  "message": "نص الرد",
+  "invoiceNumber": "رقم الفاتورة إذا موجود، أو null"
+}
+- لا تكتب JSON داخل نص آخر.
 - المحادثة السابقة: ${conversationHistory}
+- الفواتير المتوفرة: ${invoicesList}
 - رسالة المستخدم: ${question}
-            `);
-            cleanMessage = aiRawAnswer.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+`);
+        let aiAnswer;
+        try {
+            const cleanText = aiRawAnswer.trim().replace(/^```json\s*|\s*```$/g, '');
+            aiAnswer = JSON.parse(cleanText);
+        } catch {
+            aiAnswer = { message: aiRawAnswer, invoiceNumber: null };
+        }
+        let link = null;
+        if (aiAnswer.invoiceNumber) {
+            link = `/dashboard/bill/${aiAnswer.invoiceNumber}`;
         }
         await prisma.message.create({
-            data: { role: "ai", message: cleanMessage, userId: request.userId },
+            data: { role: "ai", message: aiAnswer.message, userId: request.userId },
         });
         return response.status(200).json({
             success: true,
-            message: cleanMessage,
+            message: aiAnswer.message,
             link
         });
+
     } catch (error) {
         return response.status(500).json({
             success: false,
