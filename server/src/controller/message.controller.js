@@ -35,18 +35,18 @@ export const sendMessage = async (request, response) => {
         const conversationHistory = messages.map(msg => `${msg.role === "ai" ? "AI" : "User"}: ${msg.message}`).join("\n");
         const invoices = await getInvoices();
         const invoicesList = invoices.map(inv => `رقم الفاتورة: ${inv.number}`).join("\n");
-        const aiRawAnswer = await AskAi(`
-أنت تطبيق E-SADAD.
-- لا تكتب أي معلومات عن الفواتير إلا إذا طلب المستخدم رقمًا محددًا موجودًا.
+const aiRawAnswer = await AskAi(`
+أنت تطبيق E-SADAD. 
+- لا تكتب أي معلومات عن الفواتير إلا إذا طلب المستخدم رقمًا محددًا موجودًا بالضبط.
+- إذا كانت رسالة المستخدم ليست طلب فاتورة محددة، يجب أن يكون "invoiceNumber": null.
 - مطورك هو شركة بيلسان.
 - رد فقط بصيغة JSON:
 {
   "message": "نص الرد",
-  "invoiceNumber": "رقم الفاتورة إذا موجود، أو null"
+  "invoiceNumber": null
 }
 - لا تكتب JSON داخل نص آخر.
 - المحادثة السابقة: ${conversationHistory}
-- الفواتير المتوفرة: ${invoicesList}
 - رسالة المستخدم: ${question}
 `);
         let aiAnswer;

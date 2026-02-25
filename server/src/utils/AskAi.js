@@ -1,15 +1,20 @@
-import 'dotenv/config';
-import { GoogleGenAI } from '@google/genai';
-const ai = new GoogleGenAI({ apiKey: process.env.AI_KEY });
+import axios from "axios";
 export const AskAi = async (prompt) => {
-    try {
-        const result = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt
-        });
-        return result.text;
-    } catch (error) {
-        console.log(error instanceof Error ? error.message : error);
-        throw new Error(error instanceof Error ? error.message : String(error));
+  try {
+    const response = await axios.post("http://127.0.0.1:8000/ask", {
+      prompt: prompt
+    }, {
+      headers: { "Content-Type": "application/json" },
+      timeout: 60000 
+    });
+    if (response.data.success) {
+      return response.data.response; 
+    } else {
+      console.error("AI Error:", response.data.error);
+      throw new Error(response.data.error || "Unknown error from AI");
     }
+  } catch (error) {
+    console.error("Request to FastAPI failed:", error.message || error);
+    throw new Error(error.message || String(error));
+  }
 };
