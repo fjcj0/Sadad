@@ -52,7 +52,7 @@ const ChatPage = () => {
             let retries = 0;
             while (retries < 3) {
                 try {
-                    response = await axios.post(`${baseUrl}/api/message/send-message`, { question: userMessage });
+                    response = await axios.post(`${baseUrl}/api/message/send-message`, { question: userMessage,type: "message" });
                     break;
                 } catch (err: any) {
                     if (err.response?.data?.error?.includes("model is overloaded")) {

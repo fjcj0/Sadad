@@ -55,7 +55,8 @@ const AiCallPage = () => {
             const recognizedText = data.text || "";
             setMessage(recognizedText);
             const response = await axios.post(`${baseUrl}/api/message/send-message`, {
-                question: recognizedText
+                question: recognizedText,
+                type: "voice"
             });
             setMessage(response.data.message);
             try {

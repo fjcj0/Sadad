@@ -46,16 +46,16 @@ export const getCompanies = async (request, response) => {
     }
 }
 export const getInvoices = async () => {
-    try {
-        const invoices = await prisma.bill.findMany({
-            select: {
-                name: true,
-                number: true,
-                company: true
-            }
-        });
-        return invoices;
-    } catch (error) {
-        throw new Error(error instanceof Error ? error.message : error);
-    }
-}
+  try {
+    const invoices = await prisma.bill.findMany({
+      select: {
+        name: true,
+        number: true,
+        company: true
+      }
+    });
+    return invoices;
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : error);
+  }
+};

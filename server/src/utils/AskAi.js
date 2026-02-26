@@ -1,20 +1,27 @@
 import axios from "axios";
-export const AskAi = async (prompt) => {
+export const AskAi = async (messages) => {
   try {
-    const response = await axios.post("http://127.0.0.1:8000/ask", {
-      prompt: prompt
-    }, {
-      headers: { "Content-Type": "application/json" },
-      timeout: 60000 
-    });
-    if (response.data.success) {
-      return response.data.response; 
-    } else {
-      console.error("AI Error:", response.data.error);
-      throw new Error(response.data.error || "Unknown error from AI");
-    }
+    const response = await axios.post(
+      "http://127.0.0.1:11434/api/chat",
+      {
+        model: "qwen2.5:14b",
+        messages,
+        stream: false,
+        format: "json",
+        options: {
+          temperature: 0.2,
+          num_predict: 250,
+          top_k: 30
+        }
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+        timeout: 60000
+      }
+    );
+    return response.data.message.content;
   } catch (error) {
-    console.error("Request to FastAPI failed:", error.message || error);
-    throw new Error(error.message || String(error));
+    console.error("Ollama Error:", error.response?.data || error.message);
+    throw new Error(error.message || "AI request failed");
   }
 };
