@@ -95,12 +95,20 @@ const AiCallPage = () => {
             <motion.h1 className="text-blue-primary font-bold" variants={itemVariants}>
                 مساعد اي-سداد الذكي.
             </motion.h1>
-            <motion.img
-                src={'/pictures/listen.png'}
-                alt="ai picture"
-                className="w-50 rounded-full"
-                variants={itemVariants}
-            />
+   <motion.div
+    className="relative w-50"
+    variants={itemVariants}
+>
+    <motion.img
+        src={'/pictures/listen.png'}
+        alt="ai picture"
+        className="w-full relative z-10"
+    />
+    <div className="absolute inset-0 pointer-events-none z-20">
+        <div className="absolute top-0 left-0 h-full w-1/3 bg-gradient-to-r from-white/90 to-transparent" />
+        <div className="absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-white/90 to-transparent" />
+    </div>
+</motion.div>
             <motion.div className="w-full flex gap-5 flex-col items-center text-center justify-center" variants={itemVariants}>
                 <div className="text-[#7D7E83] text-xs leading-5 min-h-[2rem]">
                     {isLoading ? (
